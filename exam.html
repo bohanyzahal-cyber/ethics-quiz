@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מבחן מדומה — אתיקה עסקית</title>
+<style>
+:root{
+  --bg:#f7f6f3; --surface:#ffffff; --text:#1f1f1d; --muted:#6b6b66;
+  --border:#e3e1da; --accent:#185fa5; --accentSoft:#e8f0f8;
+  --okBg:#e6f4ea; --okBd:#9bd3ad; --okTx:#1a6b1a;
+  --errBg:#fceaea; --errBd:#e6a3a3; --errTx:#b23030;
+  --chipBg:#efeee9; --warn:#b23030;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#1a1a18; --surface:#242421; --text:#ececea; --muted:#a3a39c;
+  --border:#37372f; --accent:#5b9bd5; --accentSoft:#22344a;
+  --okBg:#16331f; --okBd:#2f6b3f; --okTx:#7fd49a;
+  --errBg:#3a1d1d; --errBd:#7a3535; --errTx:#e89393;
+  --chipBg:#2f2f2a; --warn:#e89393;
+}}
+html.dark{--bg:#1a1a18;--surface:#242421;--text:#ececea;--muted:#a3a39c;--border:#37372f;--accent:#5b9bd5;--accentSoft:#22344a;--okBg:#16331f;--okBd:#2f6b3f;--okTx:#7fd49a;--errBg:#3a1d1d;--errBd:#7a3535;--errTx:#e89393;--chipBg:#2f2f2a;--warn:#e89393;}
+html.light{--bg:#f7f6f3;--surface:#ffffff;--text:#1f1f1d;--muted:#6b6b66;--border:#e3e1da;--accent:#185fa5;--accentSoft:#e8f0f8;--okBg:#e6f4ea;--okBd:#9bd3ad;--okTx:#1a6b1a;--errBg:#fceaea;--errBd:#e6a3a3;--errTx:#b23030;--chipBg:#efeee9;--warn:#b23030;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'Segoe UI',Arial,sans-serif;line-height:1.6;}
+.wrap{max-width:780px;margin:0 auto;padding:24px;}
+header h1{font-size:24px;margin:0 0 4px;}
+header .sub{color:var(--muted);font-size:14px;margin-bottom:16px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.stats{display:flex;gap:18px;flex-wrap:wrap;font-size:14px;margin-bottom:14px;color:var(--muted);align-items:center;}
+.stats b{color:var(--text);}
+.timer{font-size:18px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums;}
+.timer.low{color:var(--warn);}
+.bar{height:8px;background:var(--chipBg);border-radius:999px;overflow:hidden;margin-bottom:18px;}
+.bar>i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s;}
+.qmeta{font-size:12px;color:var(--muted);margin-bottom:6px;}
+.qtext{font-size:18px;font-weight:600;margin-bottom:16px;}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;cursor:pointer;transition:.12s;background:var(--surface);}
+.opt:hover{border-color:var(--accent);background:var(--accentSoft);}
+.opt .ltr{font-weight:700;color:var(--accent);min-width:20px;}
+.opt.sel{background:var(--accentSoft);border-color:var(--accent);}
+.opt.correct{background:var(--okBg);border-color:var(--okBd);}
+.opt.correct .ltr{color:var(--okTx);}
+.opt.wrong{background:var(--errBg);border-color:var(--errBd);}
+.opt.wrong .ltr{color:var(--errTx);}
+.opt.locked{cursor:default;}
+.expl{margin-top:6px;padding:14px;border-radius:10px;background:var(--accentSoft);border:1px solid var(--border);font-size:14px;}
+.expl .tag{font-weight:700;color:var(--accent);}
+.nav{display:flex;gap:10px;margin-top:18px;}
+.btn{flex:1;background:var(--chipBg);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:12px;font-size:15px;cursor:pointer;}
+.btn:hover{border-color:var(--accent);}
+.btn-pri{background:var(--accent);color:#fff;border-color:var(--accent);}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.palette{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
+.pbtn{width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:13px;cursor:pointer;}
+.pbtn.cur{outline:2px solid var(--accent);outline-offset:1px;}
+.pbtn.done{background:var(--accentSoft);border-color:var(--accent);}
+.pbtn.ok{background:var(--okBg);border-color:var(--okBd);color:var(--okTx);}
+.pbtn.bad{background:var(--errBg);border-color:var(--errBd);color:var(--errTx);}
+.palette-title{font-size:13px;color:var(--muted);margin-bottom:8px;}
+.result{text-align:center;}
+.result .big{font-size:52px;font-weight:800;}
+.result .grade{font-size:20px;margin:8px 0 6px;}
+.pass{color:var(--okTx);} .fail{color:var(--errTx);}
+ul.rules{margin:8px 0;padding-inline-start:22px;}
+ul.rules li{margin-bottom:4px;}
+.link{color:var(--accent);font-size:14px;text-decoration:none;}
+@media(max-width:520px){.wrap{padding:16px;}.card{padding:18px;}.qtext{font-size:16px;}.pbtn{width:30px;height:30px;font-size:12px;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>מבחן מדומה — אתיקה עסקית</h1>
+  <div class="sub">ד"ר רון ברגר · קוד 865562901 · מדמה מבחן אמיתי לפי מיקוד המרצה · <a class="link" href="index.html">← חזרה למאגר התרגול</a></div>
+</header>
+<div id="root"></div>
+</div>
+
+<script>
+const EXAM = [
+{t:"מצגת 1",q:`איזו טענה היא "מיתוס" שגוי על אתיקה, שהקורס מבקש להפריך?`,
+o:[`אתיקה מתפתחת עם הבגרות הקוגניטיבית`,`האתיקה שופטת מעשים ולא אנשים`,`מטרת האתיקה היא קונצנזוס בין-אישי`,`אתיקה היא עניין של דעה אישית בלבד, ללא סטנדרטים אובייקטיביים`,`לימוד אתיקה מנגיש כלים לחשיבה ביקורתית`],c:3,
+e:`"אתיקה היא דעה אישית בלבד" הוא מיתוס — האתיקה מבקשת קונצנזוס בין-אישי ויש בה סטנדרטים.`},
+
+{t:"מצגת 1",q:`לפי הקורס, אתיקה היא "ערכים בין-אישיים ולא אישיים", ולכן היא:`,
+o:[`שופטת את אופיו של האדם`,`שופטת מעשים ולא אנשים, ומחפשת קונצנזוס`,`עניין של טעם אישי בלבד`,`זהה לחלוטין לחוק`,`אינה זקוקה להסכמה`],c:1,
+e:`אתיקה = ערכים בין-אישיים; שופטים מעשים ולא אנשים, ומחפשים קונצנזוס.`},
+
+{t:"מצגת 1",q:`מנהל הנמנע מלגלות ללקוח מידע שלילי מהותי, אף שאינו חייב בכך משפטית — מעשהו:`,
+o:[`לא חוקי אך אתי`,`חוקי וגם אתי`,`חוקי אך לא אתי`,`לא חוקי וגם לא אתי`,`ניטרלי מבחינה אתית`],c:2,
+e:`אי-גילוי אמת — חוקי (רף תחתון) אך לא אתי (רף עליון).`},
+
+{t:"מצגת 1",q:`"מבחן המראה" כחלק מהמבחן האתי בודק:`,
+o:[`האם אוכל להביט בראי ולהיות גאה בעצמי`,`האם המעשה חוקי`,`האם המעשה מגדיל רווחים`,`האם רוב העובדים מסכימים`,`האם המעשה תואם את דרך האמצע`],c:0,
+e:`מבחן המראה — האם אהיה גאה בעצמי לאחר המעשה.`},
+
+{t:"מצגת 1",q:`הביטוי "The business of business is business" מבטא:`,
+o:[`גישת בעלי העניין`,`דרך האמצע של אריסטו`,`תיאוריית הזכויות`,`התיאוריה הדאונטולוגית`,`הגישה הקפיטליסטית (פרידמן) — מקסום רווחי בעלי המניות`],c:4,
+e:`פרידמן — אחריותו היחידה של המנהל היא מקסום רווחי בעלי המניות.`},
+
+{t:"מצגת 1",q:`הטענה ש"לא הכול מסחר — לא כל היחסים החברתיים הם יחסי כסף" מתארת:`,
+o:[`הנחת יסוד של השוק המושלם`,`כשל שוק המגביל את הגישה הקפיטליסטית`,`יתרון מרכזי של היד הנעלמה`,`עקרון תועלתני`,`בסיס לתיאוריית בעלי העניין`],c:1,
+e:`אחד מכשלי השוק — לא הכול ניתן להמרה ליחסי מסחר.`},
+
+{t:"מצגת 1",q:`ההצדקה ה"נורמטיבית" לתיאוריית בעלי העניין גורסת כי:`,
+o:[`קיים מתאם חיובי לרווחיות`,`עסקים פועלים כך במציאות`,`החוק מחייב זאת`,`"זה הדבר הנכון לעשות" — שיקול ערכי`,`רק בעלי המניות נחשבים`],c:3,
+e:`נורמטיבית = ערכית. (מתאם = אינסטרומנטלית; תיאור המציאות = תיאורטית.)`},
+
+{t:"מצגת 1",q:`לפי התיאוריה הדאונטולוגית של קאנט, מוסריות המעשה נקבעת לפי:`,
+o:[`הכוונה והמניע — ולא התוצאה`,`התוצאה בלבד`,`דרך האמצע בין קצוות`,`הרווח שנוצר לבעלי המניות`,`מספר הנהנים מהמעשה`],c:0,
+e:`דאונטולוגיה — "הכוונה ולא התוצאה".`},
+
+{t:"מצגת 1",q:`"הצו הקטגורי" של קאנט מנחה לשאול לפני כל מעשה:`,
+o:[`האם זה ממקסם את האושר הכולל`,`האם זה חוקי`,`האם הייתי רוצה שהכלל שלפיו אני פועל יהפוך לחוק כללי`,`האם זה משרת את הקבוצה החלשה`,`האם זה מגדיל את התשואה`],c:2,
+e:`הצו הקטגורי = עקרון ההכללה.`},
+
+{t:"מצגת 1",q:`הפתרון התועלתני לבעיית הקרונית (Foot) הוא:`,
+o:[`לא לעשות דבר`,`הסטת הקרון כך שייפגע עובד אחד במקום חמישה`,`הכוונה היא שקובעת`,`אין פתרון מוסרי`,`הקרבת החמישה על פני האחד`],c:1,
+e:`תועלתנות = מזעור הנזק: הקרבת אחד להצלת חמישה.`},
+
+{t:"מצגת 1",q:`האמירה "יחס שווה לשווים, יחס שונה לשונים — לפי השוני הרלוונטי" מבטאת אצל אריסטו את:`,
+o:[`הצדק המחלק (Distributive)`,`הצדק הפורמלי`,`הצו הקטגורי`,`התועלתנות`,`היד הנעלמה`],c:0,
+e:`צדק מחלק — חלוקה לפי שוני רלוונטי.`},
+
+{t:"מצגת 1",q:`"רישיון חברתי לפעול" (Social License to Operate) נשלל מחברה כאשר:`,
+o:[`פג תוקף רישיון העסק`,`מתחלף הדירקטוריון`,`הציבור מאבד את אמונו בה (כמו בפרשת רמדיה)`,`יורדים הרווחים ברבעון בודד`,`מסתיים הסכם השכירות`],c:2,
+e:`רישיון בלתי-פורמלי התלוי באמון הציבור.`},
+
+{t:"מצגת 2",q:`"בעיית הנציג" (Agency Problem) מתארת מצב שבו:`,
+o:[`המנהל (הנציג) פועל לטובת עצמו במקום לטובת הבעלים`,`בעל מניות מתערב בניהול`,`עובד תובע הפליה`,`צרכן נפגע ממוצר`,`המדינה מתערבת בשוק`],c:0,
+e:`בעיית הנציג — ניצול חובת הנאמנות לטובת המנהל.`},
+
+{t:"מצגת 2",q:`"תיוג בלשון נקייה" (Euphemistic Labeling) הוא מנגנון התרצה של:`,
+o:[`הטלת אשמה על הקורבן`,`פיזור אחריות בין רבים`,`השוואה למעשים חמורים יותר`,`ריכוך השפה כדי לטשטש את חומרת המעשה`,`הכחשת עצם הנזק`],c:3,
+e:`ריכוך השפה (למשל "התייעלות" במקום "פיטורים").`},
+
+{t:"מצגת 2",q:`"דילמה" היא מצב שבו:`,
+o:[`יש מוטיבציה נמוכה ואין הכרעה`,`יש מוטיבציה גבוהה לפתור אך אין הכרעה בשיפוט המוסרי`,`יש הכרעה מוסרית ברורה`,`אין כל אחריות`,`יש מוטיבציה נמוכה ויש הכרעה`],c:1,
+e:`דילמה = רוצים לפתור, אך אין הכרעה מוסרית ברורה.`},
+
+{t:"מצגת 2",q:`גישת "הארגון כאדם" (להגדרת אחריות מוסרית) טוענת כי:`,
+o:[`לארגון אין אחריות מוסרית`,`רק הפרט הבודד אחראי`,`ניתן לייחס לארגון אחריות מוסרית כי יש לו כוונות ויכולת החלטה`,`הארגון הוא כלי בלבד`,`האחריות מתחלקת שווה בשווה`],c:2,
+e:`הארגון כסוכן מוסרי בעל כוונות ויכולת הבחנה בין טוב לרע.`},
+
+{t:"מצגת 3",q:`השלב ה"הגנתי" (הראשון) בלמידה ארגונית מתאפיין ב:`,
+o:[`"זו לא אחריותנו" — הכחשת אחריות`,`שילוב אחריות באסטרטגיה`,`הובלת שינוי בכל הענף`,`ציות מלא לחוק`,`נהלי ניהול שוטפים`],c:0,
+e:`שלב הגנתי = הכחשה. (הגנתי ← ציות ← ניהולי ← אסטרטגי ← אזרחי.)`},
+
+{t:"מצגת 3",q:`הגישה הכלכלית של "היד הנעלמה" מתאימה לאיזה שלב בלמידה ארגונית?`,
+o:[`הגנתי`,`ניהולי`,`ציות`,`אסטרטגי`,`אזרחי`],c:3,
+e:`לפי מפתח הקורס — השלב האסטרטגי.`},
+
+{t:"מצגת 3",q:`"צרכנות אכפתית" (Ethical Consumerism) מתארת:`,
+o:[`צרכנים המתנים רכישה בהתנהלות אתית של החברה (כולל חרם על מוצרים לא-אתיים)`,`קנייה לפי המחיר הזול בלבד`,`צריכה ראוותנית`,`רכישה אימפולסיבית`,`צמצום מוחלט של צריכה`],c:0,
+e:`הצרכן כמנוף ללחץ לאחריות חברתית.`},
+
+{t:"מצגת 4",q:`בפירמידת האחריות של קארול, הרובד התחתון (הבסיס) הוא:`,
+o:[`האחריות הכלכלית — להיות רווחי`,`הפילנתרופית`,`האתית`,`המשפטית`,`הסביבתית`],c:0,
+e:`סדר: כלכלית ← משפטית ← אתית ← פילנתרופית.`},
+
+{t:"מצגת 4",q:`ראשי התיבות ESG מייצגים:`,
+o:[`Economic, Strategic, Growth`,`Environmental, Social, Governance (סביבה, חברה, ממשל תאגידי)`,`Ethics, Safety, Goals`,`Equity, Sustainability, Grants`,`Environment, Sales, Growth`],c:1,
+e:`ESG = סביבה, חברה, ממשל תאגידי.`},
+
+{t:"מצגת 4",q:`"אחריות חברתית אסטרטגית" כדפוס CSR מתאפיינת ב:`,
+o:[`תרומה אלטרואיסטית ללא זיקה לעסק`,`עמידה במינימום הנדרש בחוק`,`שילוב האחריות בליבת האסטרטגיה — יצירת ערך לעסק ולחברה כאחד`,`הימנעות מכל פעילות חברתית`,`חלוקת רווחים לבעלי המניות בלבד`],c:2,
+e:`אסטרטגי = שילוב ערך כלכלי וחברתי (לעומת פילנתרופי/אלטרואיסטי).`},
+
+{t:"מצגת 4",q:`"כשל הריסון" כמגבלה של החקיקה משמעו:`,
+o:[`רוב החקיקה רק נותנת גושפנקא לדרכים מקובלות ואינה יוצרת חדשות`,`החוק מקדים תמיד את המציאות`,`החוק מנוסח באופן חד-משמעי`,`כל מעשה חוקי הוא אתי`,`החוק מכסה כל מצב אפשרי`],c:0,
+e:`כשל הריסון — החקיקה מעניקה גושפנקא לנהוג המקובל, לא יוצרת סטנדרטים חדשים.`},
+
+{t:"מצגת 5",q:`לפי קולברג, אדם הפועל "נכון" רק מתוך פחד מעונש נמצא ב:`,
+o:[`הרמה הבתר-מוסרית (עקרונות אוניברסליים)`,`הרמה המוסכמת (קונבנציונלית)`,`הרמה הקדם-מוסרית (טרום-קונבנציונלית)`,`שלב הצו הקטגורי`,`שלב היד הנעלמה`],c:2,
+e:`פחד מעונש = הרמה הקדם-מוסרית (הנמוכה ביותר).`},
+
+{t:"מצגת 5",q:`"רלטיביזם מוסרי" משמעו:`,
+o:[`יש אמת מוסרית אחת ואוניברסלית`,`יש להעדיף ערכים אוניברסליים`,`יש להעדיף ערכים דתיים`,`יש להעדיף רגולציה`,`כל תרבות קובעת לעצמה את ערכיה ואין לשפוט תרבות אחרת`],c:4,
+e:`רלטיביזם — שיפוט מוסרי תלוי-תרבות.`},
+];
+
+const L=['א','ב','ג','ד','ה'];
+const DURATION=2*60*60; // שעתיים
+let phase='intro', idx=0, answers={}, remaining=DURATION, timerId=null, review=false;
+const $=s=>document.querySelector(s);
+const root=()=>document.getElementById('root');
+const fmt=s=>{s=Math.max(0,s);const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return `${h}:${String(m).padStart(2,'0')}:${String(x).padStart(2,'0')}`;};
+const score=()=>EXAM.reduce((a,q,i)=>a+(answers[i]===q.c?1:0),0);
+
+function render(){
+  if(phase==='intro') return renderIntro();
+  if(phase==='done') return renderDone();
+  renderExam();
+}
+
+function renderIntro(){
+  root().innerHTML=`<div class="card">
+    <div class="qtext">הוראות המבחן</div>
+    <ul class="rules">
+      <li><b>25 שאלות</b> אמריקאיות · 5 מסיחים לכל שאלה</li>
+      <li><b>משך: שעתיים</b> (טיימר יורד; בסיומו המבחן מוגש אוטומטית)</li>
+      <li><b>חומר סגור</b> · ציון עובר: <b>60</b></li>
+      <li>אין משוב במהלך המבחן — התשובות הנכונות וההסברים יופיעו רק <b>לאחר ההגשה</b></li>
+      <li>אפשר לנווט חופשי בין השאלות ולשנות תשובות עד ההגשה</li>
+    </ul>
+    <div class="nav"><button class="btn btn-pri" id="start">התחל מבחן ⏱️</button></div>
+  </div>
+  <div class="stats" style="justify-content:center"><a class="link" href="index.html">← למאגר התרגול (108 שאלות עם משוב מיידי)</a></div>`;
+  $('#start').onclick=start;
+}
+
+function start(){
+  phase='exam'; idx=0; answers={}; remaining=DURATION; review=false;
+  timerId=setInterval(()=>{remaining--; const t=$('#timer'); if(t){t.textContent=fmt(remaining); if(remaining<=300)t.classList.add('low');} if(remaining<=0) submit();},1000);
+  render();
+}
+
+function renderExam(){
+  const q=EXAM[idx]; const sel=answers[idx];
+  let opts='';
+  q.o.forEach((o,j)=>{opts+=`<div class="opt${sel===j?' sel':''}" data-j="${j}"><span class="ltr">${L[j]}</span><span>${o}</span></div>`;});
+  const answered=Object.keys(answers).length;
+  root().innerHTML=`<div class="card">
+    <div class="stats">
+      <span>שאלה <b>${idx+1}</b>/25</span>
+      <span>נענו: <b>${answered}</b>/25</span>
+      <span style="flex:1"></span>
+      <span class="timer" id="timer">${fmt(remaining)}</span>
+    </div>
+    <div class="bar"><i style="width:${answered/25*100}%"></i></div>
+    <div class="qmeta">${q.t}</div>
+    <div class="qtext">${idx+1}. ${q.q}</div>
+    <div id="opts">${opts}</div>
+    <div class="nav">
+      <button class="btn" id="prev" ${idx===0?'disabled':''}>◀ הקודמת</button>
+      <button class="btn btn-pri" id="next">${idx===24?'':'הבאה ▶'}</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="palette-title">מפת שאלות</div>
+    <div class="palette" id="pal"></div>
+    <div class="nav"><button class="btn btn-pri" id="submit">הגש מבחן ✓</button></div>
+  </div>`;
+  if(idx===24) $('#next').textContent='סיום ▶';
+  document.querySelectorAll('.opt').forEach(el=>el.onclick=()=>{answers[idx]=+el.dataset.j; render();});
+  $('#prev').onclick=()=>{if(idx>0){idx--;render();}};
+  $('#next').onclick=()=>{if(idx<24){idx++;render();}};
+  $('#submit').onclick=()=>{const miss=25-Object.keys(answers).length; if(miss>0){if(!confirm(`נותרו ${miss} שאלות ללא מענה. להגיש בכל זאת?`))return;} submit();};
+  const pal=$('#pal');
+  EXAM.forEach((_,k)=>{const b=document.createElement('button');b.className='pbtn'+(k===idx?' cur':'')+(answers[k]!=null?' done':'');b.textContent=k+1;b.onclick=()=>{idx=k;render();};pal.appendChild(b);});
+}
+
+function submit(){ if(timerId){clearInterval(timerId);timerId=null;} phase='done'; idx=0; review=false; render(); }
+
+function renderDone(){
+  const corr=score(), pct=Math.round(corr/25*100), pass=pct>=60;
+  if(!review){
+    let grade=pct>=90?'מצוין! 🏆':pct>=80?'טוב מאוד 👏':pct>=70?'טוב 👍':pct>=60?'עובר ✓':'לא עובר — דרוש חזרה 📚';
+    root().innerHTML=`<div class="card result">
+      <div class="big ${pass?'pass':'fail'}">${pct}</div>
+      <div class="grade ${pass?'pass':'fail'}">${corr} מתוך 25 נכונות · ${grade}</div>
+      <div style="color:var(--muted);font-size:14px;margin-bottom:16px">זמן שנותר: ${fmt(remaining)}</div>
+      <div class="nav">
+        <button class="btn btn-pri" id="rev">צפה בסקירה מלאה 🔍</button>
+        <button class="btn" id="again">מבחן חדש ↻</button>
+      </div>
+    </div>`;
+    $('#rev').onclick=()=>{review=true;idx=0;render();};
+    $('#again').onclick=start;
+    return;
+  }
+  const q=EXAM[idx], sel=answers[idx];
+  let opts='';
+  q.o.forEach((o,j)=>{let c='opt locked';if(j===q.c)c+=' correct';else if(j===sel)c+=' wrong';opts+=`<div class="${c}"><span class="ltr">${L[j]}</span><span>${o}</span></div>`;});
+  const okTag = sel===q.c?'✔ נכון':(sel==null?'— לא נענתה · התשובה: '+L[q.c]:'✘ שגוי · התשובה: '+L[q.c]);
+  root().innerHTML=`<div class="card">
+    <div class="stats"><span>סקירה — שאלה <b>${idx+1}</b>/25</span><span style="flex:1"></span><span>ציון: <b>${Math.round(score()/25*100)}</b></span></div>
+    <div class="qmeta">${q.t}</div>
+    <div class="qtext">${idx+1}. ${q.q}</div>
+    ${opts}
+    <div class="expl"><span class="tag">${okTag}</span> — ${q.e}</div>
+    <div class="nav">
+      <button class="btn" id="prev" ${idx===0?'disabled':''}>◀ הקודמת</button>
+      <button class="btn" id="next" ${idx===24?'disabled':''}>הבאה ▶</button>
+    </div>
+  </div>
+  <div class="card"><div class="palette-title">מפת שאלות</div><div class="palette" id="pal"></div>
+  <div class="nav"><button class="btn btn-pri" id="again">מבחן חדש ↻</button></div></div>`;
+  $('#prev').onclick=()=>{if(idx>0){idx--;render();}};
+  $('#next').onclick=()=>{if(idx<24){idx++;render();}};
+  $('#again').onclick=start;
+  const pal=$('#pal');
+  EXAM.forEach((_,k)=>{const b=document.createElement('button');b.className='pbtn'+(k===idx?' cur':'')+(answers[k]===EXAM[k].c?' ok':' bad');b.textContent=k+1;b.onclick=()=>{idx=k;render();};pal.appendChild(b);});
+}
+
+render();
+</script>
+</body>
+</html>
