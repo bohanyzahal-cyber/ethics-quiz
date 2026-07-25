@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>מבחן מדומה — אתיקה עסקית</title>
+<title>בוחן מדומה — אתיקה עסקית</title>
 <style>
 :root{
   --bg:#f7f6f3; --surface:#ffffff; --text:#1f1f1d; --muted:#6b6b66;
@@ -65,233 +65,209 @@ header .sub{color:var(--muted);font-size:14px;margin-bottom:16px;}
 ul.rules{margin:8px 0;padding-inline-start:22px;}
 ul.rules li{margin-bottom:4px;}
 .link{color:var(--accent);font-size:14px;text-decoration:none;}
+.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:14px 0 4px;}
+.mode{border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;background:var(--surface);transition:.12s;text-align:center;}
+.mode:hover{border-color:var(--accent);background:var(--accentSoft);}
+.mode.active{border-color:var(--accent);background:var(--accentSoft);box-shadow:0 0 0 1px var(--accent) inset;}
+.mode .mt{font-weight:700;font-size:16px;margin-bottom:2px;}
+.mode .md{font-size:13px;color:var(--muted);}
+.mix{font-size:13px;color:var(--muted);margin-top:10px;}
+.mix b{color:var(--text);}
 @media(max-width:520px){.wrap{padding:16px;}.card{padding:18px;}.qtext{font-size:16px;}.pbtn{width:30px;height:30px;font-size:12px;}}
 </style>
 </head>
 <body>
 <div class="wrap">
 <header>
-  <h1>מבחן מדומה — אתיקה עסקית</h1>
-  <div class="sub">ד"ר רון ברגר · קוד 865562901 · מדמה מבחן אמיתי לפי מיקוד המרצה · <a class="link" href="index.html">← חזרה למאגר התרגול</a></div>
+  <h1>בוחן מדומה — אתיקה עסקית</h1>
+  <div class="sub">ד"ר רון ברגר · קוד 865562901 · שאלות מוגרלות מחדש בכל בוחן לפי משקלות המיקוד · <a class="link" href="index.html">← מאגר התרגול</a></div>
 </header>
 <div id="root"></div>
 </div>
 
+<script src="questions.js"></script>
 <script>
-const EXAM = [
-{t:"מצגת 1",q:`איזו טענה היא "מיתוס" שגוי על אתיקה, שהקורס מבקש להפריך?`,
-o:[`אתיקה מתפתחת עם הבגרות הקוגניטיבית`,`האתיקה שופטת מעשים ולא אנשים`,`מטרת האתיקה היא קונצנזוס בין-אישי`,`אתיקה היא עניין של דעה אישית בלבד, ללא סטנדרטים אובייקטיביים`,`לימוד אתיקה מנגיש כלים לחשיבה ביקורתית`],c:3,
-e:`"אתיקה היא דעה אישית בלבד" הוא מיתוס — האתיקה מבקשת קונצנזוס בין-אישי ויש בה סטנדרטים.`},
-
-{t:"מצגת 1",q:`לפי הקורס, אתיקה היא "ערכים בין-אישיים ולא אישיים", ולכן היא:`,
-o:[`שופטת את אופיו של האדם`,`שופטת מעשים ולא אנשים, ומחפשת קונצנזוס`,`עניין של טעם אישי בלבד`,`זהה לחלוטין לחוק`,`אינה זקוקה להסכמה`],c:1,
-e:`אתיקה = ערכים בין-אישיים; שופטים מעשים ולא אנשים, ומחפשים קונצנזוס.`},
-
-{t:"מצגת 1",q:`מנהל הנמנע מלגלות ללקוח מידע שלילי מהותי, אף שאינו חייב בכך משפטית — מעשהו:`,
-o:[`לא חוקי אך אתי`,`חוקי וגם אתי`,`חוקי אך לא אתי`,`לא חוקי וגם לא אתי`,`ניטרלי מבחינה אתית`],c:2,
-e:`אי-גילוי אמת — חוקי (רף תחתון) אך לא אתי (רף עליון).`},
-
-{t:"מצגת 1",q:`"מבחן המראה" כחלק מהמבחן האתי בודק:`,
-o:[`האם אוכל להביט בראי ולהיות גאה בעצמי`,`האם המעשה חוקי`,`האם המעשה מגדיל רווחים`,`האם רוב העובדים מסכימים`,`האם המעשה תואם את דרך האמצע`],c:0,
-e:`מבחן המראה — האם אהיה גאה בעצמי לאחר המעשה.`},
-
-{t:"מצגת 1",q:`הביטוי "The business of business is business" מבטא:`,
-o:[`גישת בעלי העניין`,`דרך האמצע של אריסטו`,`תיאוריית הזכויות`,`התיאוריה הדאונטולוגית`,`הגישה הקפיטליסטית (פרידמן) — מקסום רווחי בעלי המניות`],c:4,
-e:`פרידמן — אחריותו היחידה של המנהל היא מקסום רווחי בעלי המניות.`},
-
-{t:"מצגת 1",q:`הטענה ש"לא הכול מסחר — לא כל היחסים החברתיים הם יחסי כסף" מתארת:`,
-o:[`הנחת יסוד של השוק המושלם`,`כשל שוק המגביל את הגישה הקפיטליסטית`,`יתרון מרכזי של היד הנעלמה`,`עקרון תועלתני`,`בסיס לתיאוריית בעלי העניין`],c:1,
-e:`אחד מכשלי השוק — לא הכול ניתן להמרה ליחסי מסחר.`},
-
-{t:"מצגת 1",q:`ההצדקה ה"נורמטיבית" לתיאוריית בעלי העניין גורסת כי:`,
-o:[`קיים מתאם חיובי לרווחיות`,`עסקים פועלים כך במציאות`,`החוק מחייב זאת`,`"זה הדבר הנכון לעשות" — שיקול ערכי`,`רק בעלי המניות נחשבים`],c:3,
-e:`נורמטיבית = ערכית. (מתאם = אינסטרומנטלית; תיאור המציאות = תיאורטית.)`},
-
-{t:"מצגת 1",q:`לפי התיאוריה הדאונטולוגית של קאנט, מוסריות המעשה נקבעת לפי:`,
-o:[`הכוונה והמניע — ולא התוצאה`,`התוצאה בלבד`,`דרך האמצע בין קצוות`,`הרווח שנוצר לבעלי המניות`,`מספר הנהנים מהמעשה`],c:0,
-e:`דאונטולוגיה — "הכוונה ולא התוצאה".`},
-
-{t:"מצגת 1",q:`"הצו הקטגורי" של קאנט מנחה לשאול לפני כל מעשה:`,
-o:[`האם זה ממקסם את האושר הכולל`,`האם זה חוקי`,`האם הייתי רוצה שהכלל שלפיו אני פועל יהפוך לחוק כללי`,`האם זה משרת את הקבוצה החלשה`,`האם זה מגדיל את התשואה`],c:2,
-e:`הצו הקטגורי = עקרון ההכללה.`},
-
-{t:"מצגת 1",q:`הפתרון התועלתני לבעיית הקרונית (Foot) הוא:`,
-o:[`לא לעשות דבר`,`הסטת הקרון כך שייפגע עובד אחד במקום חמישה`,`הכוונה היא שקובעת`,`אין פתרון מוסרי`,`הקרבת החמישה על פני האחד`],c:1,
-e:`תועלתנות = מזעור הנזק: הקרבת אחד להצלת חמישה.`},
-
-{t:"מצגת 1",q:`האמירה "יחס שווה לשווים, יחס שונה לשונים — לפי השוני הרלוונטי" מבטאת אצל אריסטו את:`,
-o:[`הצדק המחלק (Distributive)`,`הצדק הפורמלי`,`הצו הקטגורי`,`התועלתנות`,`היד הנעלמה`],c:0,
-e:`צדק מחלק — חלוקה לפי שוני רלוונטי.`},
-
-{t:"מצגת 1",q:`"רישיון חברתי לפעול" (Social License to Operate) נשלל מחברה כאשר:`,
-o:[`פג תוקף רישיון העסק`,`מתחלף הדירקטוריון`,`הציבור מאבד את אמונו בה (כמו בפרשת רמדיה)`,`יורדים הרווחים ברבעון בודד`,`מסתיים הסכם השכירות`],c:2,
-e:`רישיון בלתי-פורמלי התלוי באמון הציבור.`},
-
-{t:"מצגת 2",q:`"בעיית הנציג" (Agency Problem) מתארת מצב שבו:`,
-o:[`המנהל (הנציג) פועל לטובת עצמו במקום לטובת הבעלים`,`בעל מניות מתערב בניהול`,`עובד תובע הפליה`,`צרכן נפגע ממוצר`,`המדינה מתערבת בשוק`],c:0,
-e:`בעיית הנציג — ניצול חובת הנאמנות לטובת המנהל.`},
-
-{t:"מצגת 2",q:`"תיוג בלשון נקייה" (Euphemistic Labeling) הוא מנגנון התרצה של:`,
-o:[`הטלת אשמה על הקורבן`,`פיזור אחריות בין רבים`,`השוואה למעשים חמורים יותר`,`ריכוך השפה כדי לטשטש את חומרת המעשה`,`הכחשת עצם הנזק`],c:3,
-e:`ריכוך השפה (למשל "התייעלות" במקום "פיטורים").`},
-
-{t:"מצגת 2",q:`"דילמה" היא מצב שבו:`,
-o:[`יש מוטיבציה נמוכה ואין הכרעה`,`יש מוטיבציה גבוהה לפתור אך אין הכרעה בשיפוט המוסרי`,`יש הכרעה מוסרית ברורה`,`אין כל אחריות`,`יש מוטיבציה נמוכה ויש הכרעה`],c:1,
-e:`דילמה = רוצים לפתור, אך אין הכרעה מוסרית ברורה.`},
-
-{t:"מצגת 2",q:`גישת "הארגון כאדם" (להגדרת אחריות מוסרית) טוענת כי:`,
-o:[`לארגון אין אחריות מוסרית`,`רק הפרט הבודד אחראי`,`ניתן לייחס לארגון אחריות מוסרית כי יש לו כוונות ויכולת החלטה`,`הארגון הוא כלי בלבד`,`האחריות מתחלקת שווה בשווה`],c:2,
-e:`הארגון כסוכן מוסרי בעל כוונות ויכולת הבחנה בין טוב לרע.`},
-
-{t:"מצגת 3",q:`השלב ה"הגנתי" (הראשון) בלמידה ארגונית מתאפיין ב:`,
-o:[`"זו לא אחריותנו" — הכחשת אחריות`,`שילוב אחריות באסטרטגיה`,`הובלת שינוי בכל הענף`,`ציות מלא לחוק`,`נהלי ניהול שוטפים`],c:0,
-e:`שלב הגנתי = הכחשה. (הגנתי ← ציות ← ניהולי ← אסטרטגי ← אזרחי.)`},
-
-{t:"מצגת 3",q:`הגישה הכלכלית של "היד הנעלמה" מתאימה לאיזה שלב בלמידה ארגונית?`,
-o:[`הגנתי`,`ניהולי`,`ציות`,`אסטרטגי`,`אזרחי`],c:3,
-e:`לפי מפתח הקורס — השלב האסטרטגי.`},
-
-{t:"מצגת 3",q:`"צרכנות אכפתית" (Ethical Consumerism) מתארת:`,
-o:[`צרכנים המתנים רכישה בהתנהלות אתית של החברה (כולל חרם על מוצרים לא-אתיים)`,`קנייה לפי המחיר הזול בלבד`,`צריכה ראוותנית`,`רכישה אימפולסיבית`,`צמצום מוחלט של צריכה`],c:0,
-e:`הצרכן כמנוף ללחץ לאחריות חברתית.`},
-
-{t:"מצגת 4",q:`בפירמידת האחריות של קארול, הרובד התחתון (הבסיס) הוא:`,
-o:[`האחריות הכלכלית — להיות רווחי`,`הפילנתרופית`,`האתית`,`המשפטית`,`הסביבתית`],c:0,
-e:`סדר: כלכלית ← משפטית ← אתית ← פילנתרופית.`},
-
-{t:"מצגת 4",q:`ראשי התיבות ESG מייצגים:`,
-o:[`Economic, Strategic, Growth`,`Environmental, Social, Governance (סביבה, חברה, ממשל תאגידי)`,`Ethics, Safety, Goals`,`Equity, Sustainability, Grants`,`Environment, Sales, Growth`],c:1,
-e:`ESG = סביבה, חברה, ממשל תאגידי.`},
-
-{t:"מצגת 4",q:`"אחריות חברתית אסטרטגית" כדפוס CSR מתאפיינת ב:`,
-o:[`תרומה אלטרואיסטית ללא זיקה לעסק`,`עמידה במינימום הנדרש בחוק`,`שילוב האחריות בליבת האסטרטגיה — יצירת ערך לעסק ולחברה כאחד`,`הימנעות מכל פעילות חברתית`,`חלוקת רווחים לבעלי המניות בלבד`],c:2,
-e:`אסטרטגי = שילוב ערך כלכלי וחברתי (לעומת פילנתרופי/אלטרואיסטי).`},
-
-{t:"מצגת 4",q:`"כשל הריסון" כמגבלה של החקיקה משמעו:`,
-o:[`רוב החקיקה רק נותנת גושפנקא לדרכים מקובלות ואינה יוצרת חדשות`,`החוק מקדים תמיד את המציאות`,`החוק מנוסח באופן חד-משמעי`,`כל מעשה חוקי הוא אתי`,`החוק מכסה כל מצב אפשרי`],c:0,
-e:`כשל הריסון — החקיקה מעניקה גושפנקא לנהוג המקובל, לא יוצרת סטנדרטים חדשים.`},
-
-{t:"מצגת 5",q:`לפי קולברג, אדם הפועל "נכון" רק מתוך פחד מעונש נמצא ב:`,
-o:[`הרמה הבתר-מוסרית (עקרונות אוניברסליים)`,`הרמה המוסכמת (קונבנציונלית)`,`הרמה הקדם-מוסרית (טרום-קונבנציונלית)`,`שלב הצו הקטגורי`,`שלב היד הנעלמה`],c:2,
-e:`פחד מעונש = הרמה הקדם-מוסרית (הנמוכה ביותר).`},
-
-{t:"מצגת 5",q:`"רלטיביזם מוסרי" משמעו:`,
-o:[`יש אמת מוסרית אחת ואוניברסלית`,`יש להעדיף ערכים אוניברסליים`,`יש להעדיף ערכים דתיים`,`יש להעדיף רגולציה`,`כל תרבות קובעת לעצמה את ערכיה ואין לשפוט תרבות אחרת`],c:4,
-e:`רלטיביזם — שיפוט מוסרי תלוי-תרבות.`},
+/* משקלות לפי מיקוד המרצה */
+const SPEC=[
+  {t:"מצגת 1 — מבוא ותיאוריות",           w:.48},
+  {t:"מצגת 2 — תאגיד ומוסר",              w:.16},
+  {t:"מצגת 3 — ציות ולמידה ארגונית",      w:.12},
+  {t:"מצגת 4 — חוק, CSR וממשל",           w:.16},
+  {t:"מצגת 5 — דת, תרבות והתפתחות מוסרית",w:.08},
 ];
-
+const MODES=[
+  {id:'fast', name:'⚡ מהיר',  n:10, secs:10*60,   d:'10 שאלות · 10 דקות'},
+  {id:'mid',  name:'🎯 בינוני',n:15, secs:20*60,   d:'15 שאלות · 20 דקות'},
+  {id:'full', name:'📝 מלא',   n:25, secs:120*60,  d:'25 שאלות · שעתיים'},
+  {id:'free', name:'♾️ ללא זמן',n:25,secs:0,       d:'25 שאלות · בלי טיימר'},
+];
 const L=['א','ב','ג','ד','ה'];
-const DURATION=2*60*60; // שעתיים
-let phase='intro', idx=0, answers={}, remaining=DURATION, timerId=null, review=false;
+let mode=MODES[2], phase='intro', idx=0, answers={}, remaining=0, timerId=null, review=false, EXAM=[];
 const $=s=>document.querySelector(s);
 const root=()=>document.getElementById('root');
-const fmt=s=>{s=Math.max(0,s);const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return `${h}:${String(m).padStart(2,'0')}:${String(x).padStart(2,'0')}`;};
+const fmt=s=>{s=Math.max(0,s);const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;
+  return h>0?`${h}:${String(m).padStart(2,'0')}:${String(x).padStart(2,'0')}`:`${m}:${String(x).padStart(2,'0')}`;};
 const score=()=>EXAM.reduce((a,q,i)=>a+(answers[i]===q.c?1:0),0);
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+
+/* הקצאת מכסות לפי משקל (שיטת השארית הגדולה) + התאמה לזמינות במאגר */
+function quotas(n){
+  const pools=SPEC.map(s=>({...s,pool:BANK.map((q,i)=>({q,i})).filter(x=>x.q.t===s.t)}));
+  let alloc=pools.map(p=>{const raw=p.w*n;return {...p,base:Math.floor(raw),rem:raw-Math.floor(raw)};});
+  let used=alloc.reduce((a,x)=>a+x.base,0);
+  // מיון לפי שארית; בשוויון שאריות — הכרעה אקראית, כדי שנושאים במשקל זהה יתחלפו בין בוחנים
+  alloc.forEach(a=>a.j=Math.random());
+  alloc.sort((a,b)=>(b.rem-a.rem)||(a.j-b.j));
+  for(let k=0;used<n;k=(k+1)%alloc.length){alloc[k].base++;used++;}
+  alloc.forEach(a=>{a.base=Math.min(a.base,a.pool.length);});
+  return alloc;
+}
+
+function buildExam(n){
+  const alloc=quotas(n);
+  let picked=[];
+  alloc.forEach(a=>{picked.push(...shuffle(a.pool.slice()).slice(0,a.base));});
+  // אם חסר (מאגר קטן בנושא) — משלימים אקראית משאר המאגר
+  if(picked.length<n){
+    const taken=new Set(picked.map(x=>x.i));
+    const rest=shuffle(BANK.map((q,i)=>({q,i})).filter(x=>!taken.has(x.i)));
+    picked.push(...rest.slice(0,n-picked.length));
+  }
+  shuffle(picked);
+  // ערבוב סדר המסיחים בכל שאלה — כדי שלא נשנן "התשובה היא א'"
+  return picked.map(({q})=>{
+    const perm=shuffle([0,1,2,3,4]);
+    return {t:q.t, q:q.q, o:perm.map(j=>q.o[j]), c:perm.indexOf(q.c), e:q.e};
+  });
+}
 
 function render(){
   if(phase==='intro') return renderIntro();
-  if(phase==='done') return renderDone();
+  if(phase==='done')  return renderDone();
   renderExam();
 }
 
 function renderIntro(){
+  const al=quotas(mode.n).slice().sort((a,b)=>SPEC.findIndex(s=>s.t===a.t)-SPEC.findIndex(s=>s.t===b.t));
+  const mix=al.map(a=>`${a.t.split(' — ')[0]}: <b>${a.base}</b>`).join(' · ');
   root().innerHTML=`<div class="card">
-    <div class="qtext">הוראות המבחן</div>
-    <ul class="rules">
-      <li><b>25 שאלות</b> אמריקאיות · 5 מסיחים לכל שאלה</li>
-      <li><b>משך: שעתיים</b> (טיימר יורד; בסיומו המבחן מוגש אוטומטית)</li>
-      <li><b>חומר סגור</b> · ציון עובר: <b>60</b></li>
-      <li>אין משוב במהלך המבחן — התשובות הנכונות וההסברים יופיעו רק <b>לאחר ההגשה</b></li>
-      <li>אפשר לנווט חופשי בין השאלות ולשנות תשובות עד ההגשה</li>
+    <div class="qtext">בחר מצב בוחן</div>
+    <div class="modes" id="modes">${MODES.map(m=>`
+      <div class="mode${m.id===mode.id?' active':''}" data-id="${m.id}">
+        <div class="mt">${m.name}</div><div class="md">${m.d}</div>
+      </div>`).join('')}</div>
+    <div class="mix">הרכב מוגרל לפי המיקוד — ${mix}</div>
+    <ul class="rules" style="margin-top:14px">
+      <li><b>כל בוחן מגריל שאלות חדשות</b> מתוך ${BANK.length} שאלות המאגר</li>
+      <li>גם <b>סדר המסיחים משתנה</b> בכל פעם — אי אפשר לשנן מיקום תשובה</li>
+      <li>אין משוב במהלך הבוחן — התשובות וההסברים מופיעים <b>רק לאחר ההגשה</b></li>
+      <li>ציון עובר: <b>60</b>${mode.secs?' · בסיום הזמן הבוחן מוגש אוטומטית':''}</li>
     </ul>
-    <div class="nav"><button class="btn btn-pri" id="start">התחל מבחן ⏱️</button></div>
+    <div class="nav"><button class="btn btn-pri" id="start">התחל בוחן ${mode.secs?'⏱️':'▶'}</button></div>
   </div>
-  <div class="stats" style="justify-content:center"><a class="link" href="index.html">← למאגר התרגול (108 שאלות עם משוב מיידי)</a></div>`;
+  <div class="stats" style="justify-content:center"><a class="link" href="index.html">← למאגר התרגול (${BANK.length} שאלות עם משוב מיידי)</a></div>`;
+  document.querySelectorAll('.mode').forEach(el=>el.onclick=()=>{mode=MODES.find(m=>m.id===el.dataset.id);render();});
   $('#start').onclick=start;
 }
 
 function start(){
-  phase='exam'; idx=0; answers={}; remaining=DURATION; review=false;
-  timerId=setInterval(()=>{remaining--; const t=$('#timer'); if(t){t.textContent=fmt(remaining); if(remaining<=300)t.classList.add('low');} if(remaining<=0) submit();},1000);
+  EXAM=buildExam(mode.n);
+  phase='exam'; idx=0; answers={}; review=false; remaining=mode.secs;
+  if(timerId){clearInterval(timerId);timerId=null;}
+  if(mode.secs>0){
+    timerId=setInterval(()=>{remaining--;
+      const t=$('#timer'); if(t){t.textContent=fmt(remaining); if(remaining<=Math.min(300,mode.secs*.15))t.classList.add('low');}
+      if(remaining<=0) submit();},1000);
+  }
   render();
 }
 
 function renderExam(){
-  const q=EXAM[idx]; const sel=answers[idx];
-  let opts='';
-  q.o.forEach((o,j)=>{opts+=`<div class="opt${sel===j?' sel':''}" data-j="${j}"><span class="ltr">${L[j]}</span><span>${o}</span></div>`;});
+  const q=EXAM[idx], sel=answers[idx], N=EXAM.length;
+  const opts=q.o.map((o,j)=>`<div class="opt${sel===j?' sel':''}" data-j="${j}"><span class="ltr">${L[j]}</span><span>${o}</span></div>`).join('');
   const answered=Object.keys(answers).length;
   root().innerHTML=`<div class="card">
     <div class="stats">
-      <span>שאלה <b>${idx+1}</b>/25</span>
-      <span>נענו: <b>${answered}</b>/25</span>
+      <span>שאלה <b>${idx+1}</b>/${N}</span>
+      <span>נענו: <b>${answered}</b>/${N}</span>
       <span style="flex:1"></span>
-      <span class="timer" id="timer">${fmt(remaining)}</span>
+      ${mode.secs?`<span class="timer" id="timer">${fmt(remaining)}</span>`:`<span class="timer">♾️</span>`}
     </div>
-    <div class="bar"><i style="width:${answered/25*100}%"></i></div>
+    <div class="bar"><i style="width:${answered/N*100}%"></i></div>
     <div class="qmeta">${q.t}</div>
     <div class="qtext">${idx+1}. ${q.q}</div>
-    <div id="opts">${opts}</div>
+    <div>${opts}</div>
     <div class="nav">
       <button class="btn" id="prev" ${idx===0?'disabled':''}>◀ הקודמת</button>
-      <button class="btn btn-pri" id="next">${idx===24?'':'הבאה ▶'}</button>
+      <button class="btn btn-pri" id="next">${idx===N-1?'סיום ▶':'הבאה ▶'}</button>
     </div>
   </div>
   <div class="card">
     <div class="palette-title">מפת שאלות</div>
     <div class="palette" id="pal"></div>
-    <div class="nav"><button class="btn btn-pri" id="submit">הגש מבחן ✓</button></div>
+    <div class="nav"><button class="btn btn-pri" id="submit">הגש בוחן ✓</button></div>
   </div>`;
-  if(idx===24) $('#next').textContent='סיום ▶';
   document.querySelectorAll('.opt').forEach(el=>el.onclick=()=>{answers[idx]=+el.dataset.j; render();});
   $('#prev').onclick=()=>{if(idx>0){idx--;render();}};
-  $('#next').onclick=()=>{if(idx<24){idx++;render();}};
-  $('#submit').onclick=()=>{const miss=25-Object.keys(answers).length; if(miss>0){if(!confirm(`נותרו ${miss} שאלות ללא מענה. להגיש בכל זאת?`))return;} submit();};
+  $('#next').onclick=()=>{if(idx<N-1){idx++;render();}};
+  $('#submit').onclick=()=>{const miss=N-Object.keys(answers).length;
+    if(miss>0 && !confirm(`נותרו ${miss} שאלות ללא מענה. להגיש בכל זאת?`))return; submit();};
   const pal=$('#pal');
-  EXAM.forEach((_,k)=>{const b=document.createElement('button');b.className='pbtn'+(k===idx?' cur':'')+(answers[k]!=null?' done':'');b.textContent=k+1;b.onclick=()=>{idx=k;render();};pal.appendChild(b);});
+  EXAM.forEach((_,k)=>{const b=document.createElement('button');
+    b.className='pbtn'+(k===idx?' cur':'')+(answers[k]!=null?' done':'');
+    b.textContent=k+1; b.onclick=()=>{idx=k;render();}; pal.appendChild(b);});
 }
 
 function submit(){ if(timerId){clearInterval(timerId);timerId=null;} phase='done'; idx=0; review=false; render(); }
 
 function renderDone(){
-  const corr=score(), pct=Math.round(corr/25*100), pass=pct>=60;
+  const N=EXAM.length, corr=score(), pct=Math.round(corr/N*100), pass=pct>=60;
   if(!review){
-    let grade=pct>=90?'מצוין! 🏆':pct>=80?'טוב מאוד 👏':pct>=70?'טוב 👍':pct>=60?'עובר ✓':'לא עובר — דרוש חזרה 📚';
+    const grade=pct>=90?'מצוין! 🏆':pct>=80?'טוב מאוד 👏':pct>=70?'טוב 👍':pct>=60?'עובר ✓':'לא עובר — דרוש חזרה 📚';
+    // פילוח לפי נושא
+    const by={};
+    EXAM.forEach((q,i)=>{const k=q.t.split(' — ')[0];by[k]=by[k]||[0,0];by[k][1]++;if(answers[i]===q.c)by[k][0]++;});
+    const brk=Object.entries(by).sort().map(([k,[c,n]])=>`${k}: <b>${c}/${n}</b>`).join(' · ');
     root().innerHTML=`<div class="card result">
       <div class="big ${pass?'pass':'fail'}">${pct}</div>
-      <div class="grade ${pass?'pass':'fail'}">${corr} מתוך 25 נכונות · ${grade}</div>
-      <div style="color:var(--muted);font-size:14px;margin-bottom:16px">זמן שנותר: ${fmt(remaining)}</div>
+      <div class="grade ${pass?'pass':'fail'}">${corr} מתוך ${N} נכונות · ${grade}</div>
+      <div class="mix" style="margin-bottom:14px">${brk}</div>
+      ${mode.secs?`<div style="color:var(--muted);font-size:14px;margin-bottom:16px">זמן שנותר: ${fmt(remaining)}</div>`:''}
       <div class="nav">
-        <button class="btn btn-pri" id="rev">צפה בסקירה מלאה 🔍</button>
-        <button class="btn" id="again">מבחן חדש ↻</button>
+        <button class="btn btn-pri" id="rev">סקירה מלאה 🔍</button>
+        <button class="btn" id="again">בוחן חדש ↻</button>
       </div>
+      <div class="nav"><button class="btn" id="back">שנה מצב בוחן</button></div>
     </div>`;
     $('#rev').onclick=()=>{review=true;idx=0;render();};
     $('#again').onclick=start;
+    $('#back').onclick=()=>{phase='intro';render();};
     return;
   }
   const q=EXAM[idx], sel=answers[idx];
-  let opts='';
-  q.o.forEach((o,j)=>{let c='opt locked';if(j===q.c)c+=' correct';else if(j===sel)c+=' wrong';opts+=`<div class="${c}"><span class="ltr">${L[j]}</span><span>${o}</span></div>`;});
-  const okTag = sel===q.c?'✔ נכון':(sel==null?'— לא נענתה · התשובה: '+L[q.c]:'✘ שגוי · התשובה: '+L[q.c]);
+  const opts=q.o.map((o,j)=>{let c='opt locked';if(j===q.c)c+=' correct';else if(j===sel)c+=' wrong';
+    return `<div class="${c}"><span class="ltr">${L[j]}</span><span>${o}</span></div>`;}).join('');
+  const tag=sel===q.c?'✔ נכון':(sel==null?'— לא נענתה · התשובה: '+L[q.c]:'✘ שגוי · התשובה: '+L[q.c]);
   root().innerHTML=`<div class="card">
-    <div class="stats"><span>סקירה — שאלה <b>${idx+1}</b>/25</span><span style="flex:1"></span><span>ציון: <b>${Math.round(score()/25*100)}</b></span></div>
+    <div class="stats"><span>סקירה — שאלה <b>${idx+1}</b>/${N}</span><span style="flex:1"></span><span>ציון: <b>${pct}</b></span></div>
     <div class="qmeta">${q.t}</div>
     <div class="qtext">${idx+1}. ${q.q}</div>
     ${opts}
-    <div class="expl"><span class="tag">${okTag}</span> — ${q.e}</div>
+    <div class="expl"><span class="tag">${tag}</span> — ${q.e}</div>
     <div class="nav">
       <button class="btn" id="prev" ${idx===0?'disabled':''}>◀ הקודמת</button>
-      <button class="btn" id="next" ${idx===24?'disabled':''}>הבאה ▶</button>
+      <button class="btn" id="next" ${idx===N-1?'disabled':''}>הבאה ▶</button>
     </div>
   </div>
   <div class="card"><div class="palette-title">מפת שאלות</div><div class="palette" id="pal"></div>
-  <div class="nav"><button class="btn btn-pri" id="again">מבחן חדש ↻</button></div></div>`;
+    <div class="nav"><button class="btn btn-pri" id="again">בוחן חדש ↻</button></div></div>`;
   $('#prev').onclick=()=>{if(idx>0){idx--;render();}};
-  $('#next').onclick=()=>{if(idx<24){idx++;render();}};
+  $('#next').onclick=()=>{if(idx<N-1){idx++;render();}};
   $('#again').onclick=start;
   const pal=$('#pal');
-  EXAM.forEach((_,k)=>{const b=document.createElement('button');b.className='pbtn'+(k===idx?' cur':'')+(answers[k]===EXAM[k].c?' ok':' bad');b.textContent=k+1;b.onclick=()=>{idx=k;render();};pal.appendChild(b);});
+  EXAM.forEach((_,k)=>{const b=document.createElement('button');
+    b.className='pbtn'+(k===idx?' cur':'')+(answers[k]===EXAM[k].c?' ok':' bad');
+    b.textContent=k+1; b.onclick=()=>{idx=k;render();}; pal.appendChild(b);});
 }
 
 render();
