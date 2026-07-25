@@ -11,6 +11,7 @@
   --okBg:#e6f4ea; --okBd:#9bd3ad; --okTx:#1a6b1a;
   --errBg:#fceaea; --errBd:#e6a3a3; --errTx:#b23030;
   --chipBg:#efeee9; --warn:#b23030;
+  --midBg:#fdf6e3; --midBd:#e0cd93;
 }
 @media (prefers-color-scheme:dark){:root{
   --bg:#1a1a18; --surface:#242421; --text:#ececea; --muted:#a3a39c;
@@ -18,9 +19,10 @@
   --okBg:#16331f; --okBd:#2f6b3f; --okTx:#7fd49a;
   --errBg:#3a1d1d; --errBd:#7a3535; --errTx:#e89393;
   --chipBg:#2f2f2a; --warn:#e89393;
+  --midBg:#3a3320; --midBd:#6b5a2f;
 }}
-html.dark{--bg:#1a1a18;--surface:#242421;--text:#ececea;--muted:#a3a39c;--border:#37372f;--accent:#5b9bd5;--accentSoft:#22344a;--okBg:#16331f;--okBd:#2f6b3f;--okTx:#7fd49a;--errBg:#3a1d1d;--errBd:#7a3535;--errTx:#e89393;--chipBg:#2f2f2a;--warn:#e89393;}
-html.light{--bg:#f7f6f3;--surface:#ffffff;--text:#1f1f1d;--muted:#6b6b66;--border:#e3e1da;--accent:#185fa5;--accentSoft:#e8f0f8;--okBg:#e6f4ea;--okBd:#9bd3ad;--okTx:#1a6b1a;--errBg:#fceaea;--errBd:#e6a3a3;--errTx:#b23030;--chipBg:#efeee9;--warn:#b23030;}
+html.dark{--bg:#1a1a18;--surface:#242421;--text:#ececea;--muted:#a3a39c;--border:#37372f;--accent:#5b9bd5;--accentSoft:#22344a;--okBg:#16331f;--okBd:#2f6b3f;--okTx:#7fd49a;--errBg:#3a1d1d;--errBd:#7a3535;--errTx:#e89393;--chipBg:#2f2f2a;--warn:#e89393;--midBg:#3a3320;--midBd:#6b5a2f;}
+html.light{--bg:#f7f6f3;--surface:#ffffff;--text:#1f1f1d;--muted:#6b6b66;--border:#e3e1da;--accent:#185fa5;--accentSoft:#e8f0f8;--okBg:#e6f4ea;--okBd:#9bd3ad;--okTx:#1a6b1a;--errBg:#fceaea;--errBd:#e6a3a3;--errTx:#b23030;--chipBg:#efeee9;--warn:#b23030;--midBg:#fdf6e3;--midBd:#e0cd93;}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font-family:'Segoe UI',Arial,sans-serif;line-height:1.6;}
 .wrap{max-width:780px;margin:0 auto;padding:24px;}
@@ -73,6 +75,21 @@ ul.rules li{margin-bottom:4px;}
 .mode .md{font-size:13px;color:var(--muted);}
 .mix{font-size:13px;color:var(--muted);margin-top:10px;}
 .mix b{color:var(--text);}
+.rec{border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;text-align:right;}
+.rec.bad{background:var(--errBg);border-color:var(--errBd);}
+.rec.mid{background:var(--midBg);border-color:var(--midBd);}
+.rec.good{background:var(--okBg);border-color:var(--okBd);}
+.rec.skip{opacity:.6;}
+.rec .rh{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;}
+.rec .rt{font-weight:700;font-size:15px;}
+.rec .rs{font-size:13px;font-weight:700;padding:2px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--border);}
+.rec .rn{margin-inline-start:auto;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;}
+.rec .rbar{height:6px;background:var(--chipBg);border-radius:999px;overflow:hidden;margin:6px 0 8px;}
+.rec .rbar>i{display:block;height:100%;border-radius:999px;}
+.rec .rhint{font-size:13px;color:var(--muted);line-height:1.55;}
+.rec .rlink{display:inline-block;margin-top:8px;font-size:13px;font-weight:600;color:var(--accent);text-decoration:none;}
+.rec .rlink:hover{text-decoration:underline;}
+.verdict{font-size:15px;font-weight:600;margin-bottom:14px;padding:12px;border-radius:10px;background:var(--accentSoft);border:1px solid var(--border);}
 @media(max-width:520px){.wrap{padding:16px;}.card{padding:18px;}.qtext{font-size:16px;}.pbtn{width:30px;height:30px;font-size:12px;}}
 </style>
 </head>
@@ -101,6 +118,14 @@ const MODES=[
   {id:'full', name:'📝 מלא',   n:25, secs:120*60,  d:'25 שאלות · שעתיים'},
   {id:'free', name:'♾️ ללא זמן',n:25,secs:0,       d:'25 שאלות · בלי טיימר'},
 ];
+/* מה לחזור עליו בכל נושא — לפי קובץ המיקוד */
+const HINTS={
+ "מצגת 1 — מבוא ותיאוריות":"4 המיתוסים · אתיקה כערכים בין-אישיים · חוק מול אתיקה (רף תחתון/עליון) · המבחן האתי · 7 התיאוריות: פרידמן והיד הנעלמה, בעלי עניין (פריימן), קאנט (5 עקרונות), מיל, אריסטו (3 סוגי צדק), זכויות, שיתוף ערכים",
+ "מצגת 2 — תאגיד ומוסר":"מהו תאגיד והרמת מסך · בעיית הנציג · אחריות שילוחית / הארגון כאדם / כצירוף / אתוס · מהי דילמה · 8 ההתרצויות · כהנמן ודילמת האסיר",
+ "מצגת 3 — ציות ולמידה ארגונית":"ציות ומעבר לציות · 5 שלבי הלמידה הארגונית (הגנתי ← ציות ← ניהולי ← אסטרטגי ← אזרחי) · פרשת נייק · צרכנות אכפתית",
+ "מצגת 4 — חוק, CSR וממשל":"פירמידת קארול · דפוסי CSR (כלכלי/אתי/פילנתרופי/אסטרטגי) · ESG · ממשל תאגידי וקוד אתי · 4 המגזרים · גלוקליזציה · מגבלות החקיקה וכשל הריסון",
+ "מצגת 5 — דת, תרבות והתפתחות מוסרית":"שלבי ההתפתחות המוסרית (קולברג) · רלטיביזם מוסרי · דת כתחליף מוסר · מודל הריסון-וויקס · צדק ארגוני",
+};
 const L=['א','ב','ג','ד','ה'];
 let mode=MODES[2], phase='intro', idx=0, answers={}, remaining=0, timerId=null, review=false, EXAM=[];
 const $=s=>document.querySelector(s);
@@ -224,20 +249,56 @@ function renderDone(){
   const N=EXAM.length, corr=score(), pct=Math.round(corr/N*100), pass=pct>=60;
   if(!review){
     const grade=pct>=90?'מצוין! 🏆':pct>=80?'טוב מאוד 👏':pct>=70?'טוב 👍':pct>=60?'עובר ✓':'לא עובר — דרוש חזרה 📚';
-    // פילוח לפי נושא
-    const by={};
-    EXAM.forEach((q,i)=>{const k=q.t.split(' — ')[0];by[k]=by[k]||[0,0];by[k][1]++;if(answers[i]===q.c)by[k][0]++;});
-    const brk=Object.entries(by).sort().map(([k,[c,n]])=>`${k}: <b>${c}/${n}</b>`).join(' · ');
+    // פילוח לפי נושא (לפי סדר המצגות)
+    const stat=SPEC.map(s=>{
+      const qs=EXAM.map((q,i)=>({q,i})).filter(x=>x.q.t===s.t);
+      const c=qs.filter(x=>answers[x.i]===x.q.c).length;
+      return {t:s.t, short:s.t.split(' — ')[0], n:qs.length, c,
+              p:qs.length?Math.round(c/qs.length*100):null,
+              miss:qs.filter(x=>answers[x.i]!==x.q.c).map(x=>x.i+1)};
+    });
+    const tested=stat.filter(s=>s.n>0);
+    const weak=tested.filter(s=>s.p<60).sort((a,b)=>a.p-b.p);
+    const mid =tested.filter(s=>s.p>=60&&s.p<80).sort((a,b)=>a.p-b.p);
+    // מסקנה כללית
+    let verdict;
+    if(!weak.length&&!mid.length&&pct>=90) verdict=`🏆 <b>שליטה מצוינת בכל הנושאים שנבדקו.</b> המשך לתרגל בוחנים חדשים כדי לכסות שאלות שטרם ראית.`;
+    else if(weak.length) verdict=`📌 <b>מומלץ להתמקד ב: ${weak.map(s=>s.short).join(', ')}</b>${mid.length?` — ולאחר מכן לחזור על ${mid.map(s=>s.short).join(', ')}.`:'.'}`;
+    else if(mid.length) verdict=`📌 <b>כמעט שם.</b> כדאי לחזור על: <b>${mid.map(s=>s.short).join(', ')}</b>.`;
+    else verdict=`✓ <b>ביצועים טובים בכל הנושאים שנבדקו.</b>`;
+    // כרטיס לכל נושא — החלשים ראשונים
+    const rank=s=>s.n===0?3:(s.p<60?0:s.p<80?1:2);
+    const rows=stat.slice().sort((a,b)=>rank(a)-rank(b)||(a.p??101)-(b.p??101)).map(s=>{
+      if(!s.n) return `<div class="rec skip"><div class="rh"><span class="rt">${s.short}</span>
+        <span class="rs">לא נבדק בבוחן זה</span></div>
+        <div class="rhint">הגרל בוחן נוסף כדי להיבחן גם על נושא זה.</div>
+        <a class="rlink" href="index.html?topic=${encodeURIComponent(s.t)}">תרגל נושא זה ←</a></div>`;
+      const cls=s.p<60?'bad':s.p<80?'mid':'good';
+      const badge=s.p<60?'🔴 חיזוק נדרש':s.p<80?'🟡 כדאי לחזור':'🟢 שליטה טובה';
+      const col=s.p<60?'var(--errTx)':s.p<80?'#c9962a':'var(--okTx)';
+      return `<div class="rec ${cls}">
+        <div class="rh"><span class="rt">${s.short}</span><span class="rs">${badge}</span>
+          <span class="rn">${s.c}/${s.n} · ${s.p}%</span></div>
+        <div class="rbar"><i style="width:${s.p}%;background:${col}"></i></div>
+        ${s.p<80?`<div class="rhint"><b>לחזור על:</b> ${HINTS[s.t]||''}</div>`:''}
+        ${s.miss.length?`<div class="rhint" style="margin-top:6px">שגית בשאלות: ${s.miss.join(', ')} — ראה בסקירה המלאה.</div>`:''}
+        <a class="rlink" href="index.html?topic=${encodeURIComponent(s.t)}">תרגל נושא זה ←</a>
+      </div>`;
+    }).join('');
     root().innerHTML=`<div class="card result">
       <div class="big ${pass?'pass':'fail'}">${pct}</div>
       <div class="grade ${pass?'pass':'fail'}">${corr} מתוך ${N} נכונות · ${grade}</div>
-      <div class="mix" style="margin-bottom:14px">${brk}</div>
       ${mode.secs?`<div style="color:var(--muted);font-size:14px;margin-bottom:16px">זמן שנותר: ${fmt(remaining)}</div>`:''}
       <div class="nav">
         <button class="btn btn-pri" id="rev">סקירה מלאה 🔍</button>
         <button class="btn" id="again">בוחן חדש ↻</button>
       </div>
       <div class="nav"><button class="btn" id="back">שנה מצב בוחן</button></div>
+    </div>
+    <div class="card">
+      <div class="qtext" style="margin-bottom:10px">📊 ניתוח והמלצות לחיזוק</div>
+      <div class="verdict">${verdict}</div>
+      ${rows}
     </div>`;
     $('#rev').onclick=()=>{review=true;idx=0;render();};
     $('#again').onclick=start;

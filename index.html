@@ -273,6 +273,10 @@ $('#finish').onclick=()=>{
   $('#prev').disabled=true; $('#next').disabled=true;
 };
 
+/* פתיחה ישירה בנושא מסוים — index.html?topic=... (מגיע מהמלצות הבוחן) */
+const _t=new URLSearchParams(location.search).get('topic');
+if(_t && BANK.some(b=>b.t===_t)) filter=_t;
+
 render();
 </script>
 </body>
