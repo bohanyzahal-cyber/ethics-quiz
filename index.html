@@ -99,8 +99,9 @@ header .sub{color:var(--muted);font-size:14px;margin-bottom:16px;}
 <div class="wrap">
 <header>
   <h1>בוחן תרגול — אתיקה עסקית</h1>
-  <div class="sub">ד"ר רון ברגר · קוד 865562901 · 50 שאלות רשמיות (מצגות 1–5) + 58 שאלות נוספות לפי קובץ המיקוד · חומר סגור</div>
-  <div class="sub" style="margin-bottom:12px"><a href="exam.html" style="color:var(--accent);font-weight:600;text-decoration:none">📝 עבור לבוחן מדומה — שאלות מוגרלות מחדש בכל פעם (מהיר / בינוני / מלא) ←</a></div>
+  <div class="sub" id="subcount">ד"ר רון ברגר · קוד 865562901 · חומר סגור</div>
+  <div class="sub" style="margin-bottom:12px"><a href="exam.html" style="color:var(--accent);font-weight:600;text-decoration:none">📝 בוחן מדומה — שאלות מוגרלות מחדש (מהיר / בינוני / מלא) ←</a></div>
+  <div class="sub" style="margin-bottom:12px"><a href="exam-hard.html" style="color:var(--accent);font-weight:600;text-decoration:none">🔥 מבחן מדמה קשה — ניסוח טריקי, בלי רמזים של אורך או מיקום ←</a></div>
 </header>
 
 <div class="card">
@@ -166,7 +167,10 @@ function buildFilters(){
 
 function buildSrcFilters(){
   const host=$('#srcfilters'); host.innerHTML='';
-  const opts=[['all','כל המקורות'],['מרצה','שאלות המרצה (50)'],['שלי','שאלות נוספות — מיקוד (58)']];
+  // הספירות מחושבות מהמאגר, כדי שלא יתיישנו בכל הוספה של שאלות
+  const n=v=>BANK.filter((_,i)=>srcOf(i)===v).length;
+  $('#subcount').textContent=`ד"ר רון ברגר · קוד 865562901 · ${BANK.length} שאלות: ${n('מרצה')} רשמיות (מצגות 1–5) + ${n('שלי')} נוספות לפי קובץ המיקוד · חומר סגור`;
+  const opts=[['all',`כל המקורות (${BANK.length})`],['מרצה',`שאלות המרצה (${n('מרצה')})`],['שלי',`שאלות נוספות — מיקוד (${n('שלי')})`]];
   opts.forEach(([v,label])=>{
     const b=document.createElement('button');
     b.className='chip'+(srcFilter===v?' active':'');

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>בוחן מדומה — אתיקה עסקית</title>
+<title>מבחן מדמה קשה — אתיקה עסקית</title>
 <style>
 :root{
   --bg:#f7f6f3; --surface:#ffffff; --text:#1f1f1d; --muted:#6b6b66;
@@ -96,13 +96,13 @@ ul.rules li{margin-bottom:4px;}
 <body>
 <div class="wrap">
 <header>
-  <h1>בוחן מדומה — אתיקה עסקית</h1>
-  <div class="sub">ד"ר רון ברגר · קוד 865562901 · שאלות מוגרלות מחדש בכל בוחן לפי משקלות המיקוד · <a class="link" href="exam-hard.html">מבחן קשה 🔥</a> · <a class="link" href="index.html">מאגר התרגול</a></div>
+  <h1>מבחן מדמה קשה — אתיקה עסקית</h1>
+  <div class="sub">ד"ר רון ברגר · קוד 865562901 · ניסוח "טריקי" · מסיחים של מושגים סמוכים · <a class="link" href="exam.html">בוחן רגיל</a> · <a class="link" href="index.html">מאגר התרגול</a></div>
 </header>
 <div id="root"></div>
 </div>
 
-<script src="questions.js"></script>
+<script src="questions-hard.js"></script>
 <script>
 /* משקלות לפי מיקוד המרצה */
 const SPEC=[
@@ -161,8 +161,9 @@ function buildExam(n){
   shuffle(picked);
   // ערבוב סדר המסיחים בכל שאלה — כדי שלא נשנן "התשובה היא א'"
   return picked.map(({q})=>{
-    const perm=shuffle([0,1,2,3,4]);
-    return {t:q.t, q:q.q, o:perm.map(j=>q.o[j]), c:perm.indexOf(q.c), e:q.e};
+    /* אין ערבוב מסיחים: הסדר מתוכנן כך שהתשובה הנכונה לעולם אינה
+       הארוכה ביותר ולעולם אינה ב-ג', וההסברים מפנים לאותיות הנכונות. */
+    return {t:q.t, q:q.q, o:q.o.slice(), c:q.c, e:q.e};
   });
 }
 
@@ -184,7 +185,8 @@ function renderIntro(){
     <div class="mix">הרכב מוגרל לפי המיקוד — ${mix}</div>
     <ul class="rules" style="margin-top:14px">
       <li><b>כל בוחן מגריל שאלות חדשות</b> מתוך ${BANK.length} שאלות המאגר</li>
-      <li>גם <b>סדר המסיחים משתנה</b> בכל פעם — אי אפשר לשנן מיקום תשובה</li>
+      <li><b>ניסוח טריקי:</b> שאלות שלילה ("למעט"), תרחישים, ומסיחים של מושגים סמוכים</li>
+      <li>הטריקים הרגילים לא יעזרו: התשובה הנכונה <b>לעולם אינה הארוכה ביותר</b> ואף פעם לא ב-<b>ג'</b></li>
       <li>אין משוב במהלך הבוחן — התשובות וההסברים מופיעים <b>רק לאחר ההגשה</b></li>
       <li>ציון עובר: <b>60</b>${mode.secs?' · בסיום הזמן הבוחן מוגש אוטומטית':''}</li>
     </ul>
