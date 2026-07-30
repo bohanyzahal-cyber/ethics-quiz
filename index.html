@@ -86,6 +86,14 @@ header .sub{color:var(--muted);font-size:14px;margin-bottom:16px;}
 .pbtn.ok{background:var(--okBg);border-color:var(--okBd);color:var(--okTx);}
 .pbtn.bad{background:var(--errBg);border-color:var(--errBd);color:var(--errTx);}
 .palette-title{font-size:13px;color:var(--muted);margin-bottom:8px;}
+.ep{display:flex;gap:12px;align-items:center;flex-wrap:wrap;border:1px solid var(--border);
+  border-radius:10px;padding:10px 12px;margin-bottom:8px;background:var(--surface);transition:.12s;}
+.ep.match{border-color:var(--accent);background:var(--accentSoft);}
+.ep .num{font-weight:700;color:var(--accent);min-width:22px;}
+.ep .ttl{font-weight:600;flex:1;min-width:170px;}
+.ep .tp{font-size:12px;color:var(--muted);}
+.ep audio{height:34px;max-width:100%;}
+.epnote{font-size:13px;color:var(--muted);margin-top:8px;}
 .result{text-align:center;}
 .result .big{font-size:46px;font-weight:800;color:var(--accent);}
 .result .grade{font-size:18px;margin:8px 0 16px;}
@@ -102,6 +110,7 @@ header .sub{color:var(--muted);font-size:14px;margin-bottom:16px;}
   <div class="sub" id="subcount">ד"ר רון ברגר · קוד 865562901 · חומר סגור</div>
   <div class="sub" style="margin-bottom:12px"><a href="exam.html" style="color:var(--accent);font-weight:600;text-decoration:none">📝 בוחן מדומה — שאלות מוגרלות מחדש (מהיר / בינוני / מלא) ←</a></div>
   <div class="sub" style="margin-bottom:12px"><a href="exam-hard.html" style="color:var(--accent);font-weight:600;text-decoration:none">🔥 מבחן מדמה קשה — ניסוח טריקי, בלי רמזים של אורך או מיקום ←</a></div>
+  <div class="sub" style="margin-bottom:12px"><a href="#podcasts" style="color:var(--accent);font-weight:600;text-decoration:none">🎧 פודקאסטים — 7 פרקים לפי נושא ←</a></div>
 </header>
 
 <div class="card">
@@ -128,6 +137,12 @@ header .sub{color:var(--muted);font-size:14px;margin-bottom:16px;}
 <div class="card">
   <div class="palette-title">מפת שאלות — לחצו למעבר מהיר</div>
   <div class="palette" id="palette"></div>
+</div>
+
+<div class="card" id="podcasts">
+  <div class="palette-title">🎧 פודקאסטים — סיכומי הקורס לפי נושא · הפרק המתאים לנושא שבחרתם מודגש</div>
+  <div id="podhost"></div>
+  <div class="epnote" id="podnote"></div>
 </div>
 
 <div class="toolbar">
@@ -214,6 +229,7 @@ function render(){
   $('#next').disabled = idx>=vis.length-1;
   updateStats(vis);
   buildPalette(vis);
+  highlightPodcasts();
 }
 
 function updateStats(vis){
@@ -276,6 +292,44 @@ $('#finish').onclick=()=>{
   </div>`;
   $('#prev').disabled=true; $('#next').disabled=true;
 };
+
+/* ===== פודקאסטים ===== */
+const PODCASTS=[
+ {n:1,f:'podcasts/01-intro.mp3',                     ttl:'מבוא ויסודות האתיקה',                   t:'מצגת 1 — מבוא ותיאוריות'},
+ {n:2,f:'podcasts/02-capitalism-stakeholders.mp3',   ttl:'קפיטליזם מול בעלי עניין',               t:'מצגת 1 — מבוא ותיאוריות'},
+ {n:3,f:'podcasts/03-three-theories.mp3',            ttl:'שלוש התיאוריות המוסריות — קאנט, מיל, אריסטו', t:'מצגת 1 — מבוא ותיאוריות'},
+ {n:4,f:'podcasts/04-rights-shared-value.mp3',       ttl:'זכויות, הפליה ושיתוף ערכים',            t:'מצגת 1 — מבוא ותיאוריות'},
+ {n:5,f:'podcasts/05-corporation-rationalization.mp3',ttl:'תאגיד, דילמות ומנגנוני התרצה',          t:'מצגת 2 — תאגיד ומוסר'},
+ {n:6,f:'podcasts/06-csr.mp3',                       ttl:'אחריות תאגידית (CSR)',                  t:'מצגת 4 — חוק, CSR וממשל'},
+ {n:7,f:'podcasts/07-religion-culture-kohlberg.mp3', ttl:'דת, תרבות והתפתחות מוסרית',             t:'מצגת 5 — דת, תרבות והתפתחות מוסרית'},
+];
+
+/* נבנה פעם אחת בלבד: בנייה מחדש בכל render הייתה מאפסת נגן שמתנגן */
+function buildPodcasts(){
+  const host=$('#podhost');
+  PODCASTS.forEach(p=>{
+    const d=document.createElement('div');
+    d.className='ep'; d.dataset.topic=p.t;
+    d.innerHTML=`<span class="num">${p.n}</span>`+
+      `<span class="ttl">${p.ttl}<div class="tp">${p.t}</div></span>`+
+      `<audio controls preload="none" src="${p.f}"></audio>`;
+    host.appendChild(d);
+  });
+}
+
+function highlightPodcasts(){
+  let n=0;
+  document.querySelectorAll('#podhost .ep').forEach(el=>{
+    const m = filter!=='all' && el.dataset.topic===filter;
+    el.classList.toggle('match',m); if(m) n++;
+  });
+  const note=$('#podnote');
+  if(filter==='all') note.textContent='7 פרקים. בחרו נושא למעלה כדי להדגיש את הפרק הרלוונטי.';
+  else if(n) note.textContent='';
+  else note.textContent='לנושא זה אין פרק פודקאסט נפרד — נייק ולמידה ארגונית נסקרים בתוך הפרק על אחריות תאגידית (6).';
+}
+
+buildPodcasts();
 
 /* פתיחה ישירה בנושא מסוים — index.html?topic=... (מגיע מהמלצות הבוחן) */
 const _t=new URLSearchParams(location.search).get('topic');
