@@ -33,6 +33,7 @@ const esc = s => String(s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 let n = 0;
+const key_of = t => 't' + (TOPICS.indexOf(t) + 1);
 const section = (title, bank, hard) => {
   let h = `<h2 class="topic">${esc(title)}`;
   if (!hard && BLUEPRINT[title]) h += `<span class="bp">צפי במבחן: ${esc(BLUEPRINT[title])}</span>`;
@@ -49,22 +50,25 @@ const section = (title, bank, hard) => {
   <div class="ans"><b>תשובה: ${L[q.c]}</b> — ${esc(q.o[q.c])}<div class="ex">${esc(q.e)}</div></div>
 </article>`;
   }).join('\n');
-  return `<section class="sec">${h}</section>`;
+  const attrs = `data-topic="${key_of(title)}"${hard ? ' data-hard="1"' : ''}`;
+  return `<section class="sec" ${attrs}>${h}</section>`;
 };
 
 /* המפתח נאסף תוך כדי הבנייה, ולכן חייב לרוץ לפני שמרכיבים אותו */
 const KEY = [];
-const collect = (bank, title) => bank.filter(q => q.t === title).forEach(q => KEY.push(L[q.c]));
+const collect = (bank, title, hard) =>
+  bank.filter(q => q.t === title).forEach(q => KEY.push({ a: L[q.c], k: key_of(title), hard }));
 
 const body = [
-  ...TOPICS.map(t => { const s = section(t, REG, false); collect(REG, t); return s; }),
-  `<section class="sec"><h2 class="topic">מאגר טריקי — שאלות קשות<span class="bp">עד 4 שאלות קשות במבחן</span></h2></section>`,
-  ...TOPICS.map(t => { const s = section(t, HARD, true); collect(HARD, t); return s; }),
+  ...TOPICS.map(t => { const s = section(t, REG, false); collect(REG, t, false); return s; }),
+  `<section class="sec" data-hard="1"><h2 class="topic">מאגר טריקי — שאלות קשות<span class="bp">עד 4 שאלות קשות במבחן</span></h2></section>`,
+  ...TOPICS.map(t => { const s = section(t, HARD, true); collect(HARD, t, true); return s; }),
 ].filter(Boolean).join('\n');
 
 /* מפתח תשובות דחוס — מה שהופך את מצב התרגול העצמי לשמיש */
-const keyCells = KEY.map((a, i) => `<span class="kc"><b>${i + 1}</b>${a}</span>`).join('');
-const keySection = `<section class="sec"><h2 class="topic">מפתח תשובות<span class="bp">${KEY.length} שאלות</span></h2>
+const keyCells = KEY.map((e, i) =>
+  `<span class="kc" data-topic="${e.k}"${e.hard ? ' data-hard="1"' : ''}><b>${i + 1}</b>${e.a}</span>`).join('');
+const keySection = `<section class="sec"><h2 class="topic">מפתח תשובות<span class="bp" id="keycount">${KEY.length} שאלות</span></h2>
 <div class="key">${keyCells}</div></section>`;
 
 const counts = TOPICS.map(t =>
@@ -113,20 +117,35 @@ body.hide-ans .only-self { display: block; }
 .key { display: flex; flex-wrap: wrap; gap: 2px 0; font-size: 9.5pt; }
 .key .kc { width: 11.11%; padding: 1px 0; white-space: nowrap; }
 .key .kc b { display: inline-block; min-width: 30px; color: #555; font-weight: 400; }
+/* סינון לפני הדפסה — הכיתוב off-* נקבע ב-JS על ה-body */
+body.off-t1 [data-topic="t1"], body.off-t2 [data-topic="t2"], body.off-t3 [data-topic="t3"],
+body.off-t4 [data-topic="t4"], body.off-t5 [data-topic="t5"], body.off-hard [data-hard] { display: none !important; }
 .controls { border: 2px solid #000; padding: 12px; margin-bottom: 18px; font-size: 11pt; }
+.controls .picks { margin: 8px 0; display: flex; flex-wrap: wrap; gap: 4px 16px; }
+.controls label { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5pt; cursor: pointer; }
+.controls .sel { margin-top: 6px; font-size: 10pt; color: #444; }
 .controls button { font: inherit; padding: 6px 14px; margin-inline-end: 8px; cursor: pointer; }
 @media print { .controls { display: none; } body { padding: 0; } }
 </style></head><body>
 <div class="wrap">
 
 <div class="controls">
-  <b>לפני ההדפסה:</b>
-  <button onclick="document.body.classList.remove('hide-ans');window.print()">הדפס עם תשובות והסברים</button>
-  <button onclick="document.body.classList.add('hide-ans');window.print()">הדפס בלי תשובות (לתרגול עצמי)</button>
+  <b>מה להדפיס:</b>
+  <div class="picks" id="picks">
+${TOPICS.map((t, i) => `    <label><input type="checkbox" data-k="t${i + 1}" checked> ${esc(t)}</label>`).join('')}
+    <label><input type="checkbox" data-k="hard" checked> מאגר טריקי (שאלות קשות)</label>
+  </div>
+  <div class="sel" id="sel"></div>
+  <div style="margin-top:10px">
+    <button onclick="document.body.classList.remove('hide-ans');window.print()">הדפס עם תשובות והסברים</button>
+    <button onclick="document.body.classList.add('hide-ans');window.print()">הדפס בלי תשובות (לתרגול עצמי)</button>
+  </div>
   <div style="margin-top:8px;font-size:10pt;color:#444">
     טיפ: בחלון ההדפסה של הדפדפן כדאי לכבות "כותרות עליונות ותחתונות" ולסמן "הדפס רקעים" כדי שתיבות התשובה יישארו מודגשות.
+    מספרי השאלות נשארים קבועים גם כשמסננים, כדי ששאלה 137 תהיה תמיד אותה שאלה.
   </div>
 </div>
+
 
 <h1>אתיקה עסקית — גיליון תרגול להדפסה</h1>
 <div class="sub">ד"ר רון ברגר · קוד 865562901 · ${REG.length + HARD.length} שאלות · המבחן: 2.8.26, 25 שאלות, 5 מסיחים</div>
@@ -148,7 +167,25 @@ body.hide-ans .only-self { display: block; }
 ${body}
 ${keySection}
 
-</div></body></html>`;
+</div>
+<script>
+(function(){
+  var boxes = [].slice.call(document.querySelectorAll('#picks input'));
+  function apply(){
+    boxes.forEach(function(b){ document.body.classList.toggle('off-' + b.dataset.k, !b.checked); });
+    var vis = document.querySelectorAll('article.q');
+    var shown = 0;
+    [].forEach.call(vis, function(a){ if (a.offsetParent !== null) shown++; });
+    document.getElementById('sel').textContent =
+      shown ? (shown + ' שאלות ייכללו בהדפסה') : 'לא נבחר דבר — לא יודפסו שאלות';
+    var kc = document.getElementById('keycount');
+    if (kc) kc.textContent = shown + ' שאלות';
+  }
+  boxes.forEach(function(b){ b.addEventListener('change', apply); });
+  apply();
+})();
+</script>
+</body></html>`;
 
 fs.writeFileSync(path.join(DIR, 'print.html'), html, 'utf8');
 console.log(`print.html נוצר — ${n} שאלות (${REG.length} רגיל + ${HARD.length} קשה)`);
