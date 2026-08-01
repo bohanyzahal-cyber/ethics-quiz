@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="he" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>מבחן מוכנות — אתיקה עסקית</title>
+<style>
+:root{--bg:#f6f7f9;--surface:#fff;--text:#1a1d21;--muted:#667;--border:#dde;--accent:#0b6e6e;
+ --accentSoft:#e6f2f2;--chipBg:#eef0f3;--okBg:#e7f6ec;--okBd:#9fd8b0;--okTx:#1e7b3e;
+ --errBg:#fdecec;--errBd:#f2b3b3;--errTx:#b93030;}
+html.dark{--bg:#14171a;--surface:#1e2227;--text:#e8eaed;--muted:#9aa;--border:#333a42;
+ --accent:#4dd0c4;--accentSoft:#1c2e2c;--chipBg:#262b31;--okBg:#15291c;--okBd:#2e6b42;
+ --okTx:#7fd89a;--errBg:#2e1a1a;--errBd:#7c3b3b;--errTx:#f09c9c;}
+*{box-sizing:border-box}
+body{font-family:"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text);margin:0;padding:20px;line-height:1.5}
+.wrap{max-width:760px;margin:0 auto}
+h1{font-size:24px;margin:0 0 4px}
+.sub{color:var(--muted);font-size:14px;margin-bottom:16px}
+.sub a{color:var(--accent);font-weight:600;text-decoration:none}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.btn{display:inline-block;border:1px solid var(--border);background:var(--chipBg);color:var(--text);
+ border-radius:10px;padding:10px 18px;cursor:pointer;font:inherit;font-weight:600}
+.btn-pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn:disabled{opacity:.45;cursor:default}
+.mode{border:1px solid var(--border);border-radius:12px;padding:12px 16px;cursor:pointer;margin-bottom:8px}
+.mode.active{border-color:var(--accent);background:var(--accentSoft);box-shadow:0 0 0 1px var(--accent) inset}
+.mode b{display:block}
+.mode span{font-size:13px;color:var(--muted)}
+.top{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.timer{font-size:18px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+.timer.low{color:var(--errTx)}
+.qmeta{font-size:12.5px;color:var(--muted);margin-bottom:6px}
+.qtext{font-size:17px;font-weight:600;margin-bottom:14px}
+.opt{display:flex;gap:10px;border:1px solid var(--border);border-radius:10px;padding:12px 14px;
+ margin-bottom:9px;cursor:pointer;background:var(--surface)}
+.opt:hover{border-color:var(--accent)}
+.opt.sel{border-color:var(--accent);background:var(--accentSoft);box-shadow:0 0 0 1px var(--accent) inset}
+.opt .ltr{font-weight:700;color:var(--accent);min-width:18px}
+.opt.rv-ok{background:var(--okBg);border-color:var(--okBd)}
+.opt.rv-bad{background:var(--errBg);border-color:var(--errBd)}
+.nav{display:flex;gap:10px;margin-top:14px}
+.nav .btn{flex:1}
+.palette{display:flex;flex-wrap:wrap;gap:6px}
+.pbtn{width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:var(--surface);
+ color:var(--text);font-size:13px;cursor:pointer}
+.pbtn.done{background:var(--accentSoft);border-color:var(--accent)}
+.pbtn.cur{outline:2px solid var(--accent);outline-offset:1px}
+.big{font-size:52px;font-weight:800;text-align:center}
+.grade{text-align:center;font-size:17px;margin-bottom:10px}
+table{width:100%;border-collapse:collapse;font-size:14px;margin:10px 0}
+th,td{border:1px solid var(--border);padding:6px 10px;text-align:right}
+th{background:var(--chipBg)}
+.expl{margin-top:8px;padding:12px;border-radius:10px;background:var(--accentSoft);
+ border:1px solid var(--border);font-size:14px}
+.expl .tag{font-weight:700;color:var(--accent)}
+.warn{color:var(--errTx);font-weight:600}
+</style></head><body>
+<div class="wrap">
+<h1>🎯 מבחן מוכנות</h1>
+<div class="sub">25 שאלות חדשות שאינן במאגר התרגול · חלוקה כמו במבחן האמיתי (11/6/3/3/2) · ללא משוב עד ההגשה · <a href="index.html">← חזרה</a></div>
+<div id="root"></div>
+</div>
+<script src="readiness-questions.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+const L=['א','ב','ג','ד','ה'];
+const TN={1:'מצגת 1 — מבוא ותיאוריות',2:'מצגת 2 — תאגיד ומוסר',3:'מצגת 3 — ציות ולמידה',4:'מצגת 4 — חוק, CSR וממשל',5:'מצגת 5 — התפתחות מוסרית'};
+let EXAM=[],answers={},idx=0,remaining=0,timerId=null,mode=90;
+
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const fmt=s=>{s=Math.max(0,s);const m=Math.floor(s/60),x=s%60;return m+':'+String(x).padStart(2,'0');};
+
+function intro(){
+  $('#root').innerHTML=`<div class="card">
+    <p><b>תנאי אמת:</b> אין משוב תוך כדי, אין הסברים עד ההגשה, והמסיחים מעורבבים. עוברים בין שאלות חופשי.</p>
+    <div class="mode active" data-m="90"><b>⏱ 90 דקות</b><span>כ-3.5 דקות לשאלה — קצב בוחן האמצע</span></div>
+    <div class="mode" data-m="75"><b>⚡ 75 דקות</b><span>3 דקות לשאלה — סימולציה מחמירה</span></div>
+    <div class="mode" data-m="0"><b>♾️ ללא הגבלת זמן</b><span>רק לבדוק ידע, בלי לחץ</span></div>
+    <div style="margin-top:14px"><button class="btn btn-pri" id="start">התחל מבחן</button></div>
+  </div>`;
+  document.querySelectorAll('.mode').forEach(m=>m.onclick=()=>{
+    document.querySelectorAll('.mode').forEach(x=>x.classList.remove('active'));
+    m.classList.add('active'); mode=+m.dataset.m;});
+  $('#start').onclick=start;
+}
+
+function start(){
+  /* שומרים על סדר הנושאים כמו במבחן אמיתי (מצגת 1 ואילך), מערבבים בתוך נושא ואת המסיחים */
+  EXAM=[1,2,3,4,5].flatMap(t=>shuffle(RQ.filter(q=>q.t===t).map(q=>{
+    const perm=shuffle([0,1,2,3,4]);
+    return {t:q.t,q:q.q,o:perm.map(j=>q.o[j]),c:perm.indexOf(q.c),e:q.e};
+  })));
+  answers={};idx=0;
+  if(mode>0){remaining=mode*60;timerId=setInterval(()=>{remaining--;
+    const el=$('#tm');if(el){el.textContent=fmt(remaining);el.classList.toggle('low',remaining<300);}
+    if(remaining<=0){clearInterval(timerId);finish();}},1000);}
+  render();
+}
+
+function render(){
+  const q=EXAM[idx];
+  const ans=Object.keys(answers).length;
+  $('#root').innerHTML=`<div class="card">
+    <div class="top">
+      ${mode>0?`<span class="timer" id="tm">${fmt(remaining)}</span>`:''}
+      <span style="color:var(--muted);font-size:14px">שאלה ${idx+1} / ${EXAM.length} · נענו ${ans}</span>
+      <span style="margin-inline-start:auto"><button class="btn" id="finish"${ans<EXAM.length?' title="אפשר להגיש גם חלקית"':''}>סיים והגש</button></span>
+    </div>
+    <div class="qmeta">${TN[q.t]}</div>
+    <div class="qtext">${idx+1}. ${q.q}</div>
+    ${q.o.map((o,j)=>`<div class="opt${answers[idx]===j?' sel':''}" data-j="${j}"><span class="ltr">${L[j]}</span><span>${o}</span></div>`).join('')}
+    <div class="nav">
+      <button class="btn" id="prev"${idx===0?' disabled':''}>◀ הקודמת</button>
+      <button class="btn btn-pri" id="next"${idx>=EXAM.length-1?' disabled':''}>הבאה ▶</button>
+    </div>
+  </div>
+  <div class="card"><div class="palette">${EXAM.map((_,i)=>
+    `<button class="pbtn${answers[i]!=null?' done':''}${i===idx?' cur':''}" data-i="${i}">${i+1}</button>`).join('')}</div></div>`;
+  document.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{answers[idx]=+o.dataset.j;render();});
+  document.querySelectorAll('.pbtn').forEach(b=>b.onclick=()=>{idx=+b.dataset.i;render();});
+  $('#prev').onclick=()=>{idx--;render();};
+  $('#next').onclick=()=>{idx++;render();};
+  $('#finish').onclick=()=>{
+    const left=EXAM.length-Object.keys(answers).length;
+    if(left>0&&!confirm('נותרו '+left+' שאלות ללא מענה. להגיש בכל זאת?'))return;
+    finish();
+  };
+}
+
+function finish(){
+  if(timerId)clearInterval(timerId);
+  const per={};
+  EXAM.forEach((q,i)=>{per[q.t]=per[q.t]||{n:0,ok:0};per[q.t].n++;if(answers[i]===q.c)per[q.t].ok++;});
+  const corr=EXAM.reduce((a,q,i)=>a+(answers[i]===q.c?1:0),0);
+  const pct=Math.round(corr/EXAM.length*100);
+  const verdict=pct>=90?'מוכן היטב 🏆 — רמה של מצטיינים':
+    pct>=80?'מוכן 👍 — עוד ליטוש בנושאים החלשים ואתה שם':
+    pct>=68?'כמעט שם ⚠️ — עובר, אבל יש פערים שכדאי לסגור לפני יום ראשון':
+    pct>=60?'גבולי — עובר בקושי; מומלץ יום תרגול ממוקד':'מתחת לרף — יש עבודה. תרגל את הנושאים האדומים ותחזור';
+  $('#root').innerHTML=`<div class="card">
+    <div class="big">${pct}%</div>
+    <div class="grade">${corr} / ${EXAM.length} · ${verdict}</div>
+    <table><tr><th>נושא</th><th>נכונות</th><th>ציון</th></tr>
+    ${Object.entries(per).map(([t,s])=>{const p=Math.round(s.ok/s.n*100);
+      return `<tr><td>${TN[t]}</td><td>${s.ok}/${s.n}</td><td${p<60?' class="warn"':''}>${p}%</td></tr>`;}).join('')}
+    </table>
+    <button class="btn btn-pri" id="review">📖 מעבר על השאלות עם הסברים</button>
+  </div>`;
+  $('#review').onclick=review;
+}
+
+function review(){
+  $('#root').innerHTML=EXAM.map((q,i)=>{
+    const my=answers[i];
+    return `<div class="card">
+    <div class="qmeta">${TN[q.t]} · ${my===q.c?'✔ נכון':my==null?'⊘ לא נענתה':'✘ שגוי'}</div>
+    <div class="qtext">${i+1}. ${q.q}</div>
+    ${q.o.map((o,j)=>{let cl='opt';if(j===q.c)cl+=' rv-ok';else if(j===my)cl+=' rv-bad';
+      return `<div class="${cl}"><span class="ltr">${L[j]}</span><span>${o}</span></div>`;}).join('')}
+    <div class="expl"><span class="tag">${my===q.c?'✔':'התשובה: '+L[q.c]}</span> — ${q.e}</div>
+    </div>`;}).join('')+
+  `<div class="card"><button class="btn btn-pri" onclick="location.reload()">↻ נסה שוב (ערבוב חדש)</button></div>`;
+  window.scrollTo(0,0);
+}
+
+intro();
+</script>
+</body></html>
