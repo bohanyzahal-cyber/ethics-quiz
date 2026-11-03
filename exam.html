@@ -136,9 +136,12 @@ const fmt=s=>{s=Math.max(0,s);const h=Math.floor(s/3600),m=Math.floor(s%3600/60)
 const score=()=>EXAM.reduce((a,q,i)=>a+(answers[i]===q.c?1:0),0);
 const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
 
+/* מאגר הבוחן: בלי כפילויות של כיתת ספיר (dup) ובלי שאלות שאינן על החומר (noexam) */
+const POOL=BANK.map((q,i)=>({q,i})).filter(x=>!x.q.dup&&!x.q.noexam);
+
 /* הקצאת מכסות לפי משקל (שיטת השארית הגדולה) + התאמה לזמינות במאגר */
 function quotas(n){
-  const pools=SPEC.map(s=>({...s,pool:BANK.map((q,i)=>({q,i})).filter(x=>x.q.t===s.t)}));
+  const pools=SPEC.map(s=>({...s,pool:POOL.filter(x=>x.q.t===s.t)}));
   let alloc=pools.map(p=>{const raw=p.w*n;return {...p,base:Math.floor(raw),rem:raw-Math.floor(raw)};});
   let used=alloc.reduce((a,x)=>a+x.base,0);
   // מיון לפי שארית; בשוויון שאריות — הכרעה אקראית, כדי שנושאים במשקל זהה יתחלפו בין בוחנים
@@ -156,7 +159,7 @@ function buildExam(n){
   // אם חסר (מאגר קטן בנושא) — משלימים אקראית משאר המאגר
   if(picked.length<n){
     const taken=new Set(picked.map(x=>x.i));
-    const rest=shuffle(BANK.map((q,i)=>({q,i})).filter(x=>!taken.has(x.i)));
+    const rest=shuffle(POOL.filter(x=>!taken.has(x.i)));
     picked.push(...rest.slice(0,n-picked.length));
   }
   shuffle(picked);
@@ -184,14 +187,14 @@ function renderIntro(){
       </div>`).join('')}</div>
     <div class="mix">הרכב מוגרל לפי המיקוד — ${mix}</div>
     <ul class="rules" style="margin-top:14px">
-      <li><b>כל בוחן מגריל שאלות חדשות</b> מתוך ${BANK.length} שאלות המאגר</li>
+      <li><b>כל בוחן מגריל שאלות חדשות</b> מתוך ${POOL.length} שאלות המאגר</li>
       <li>גם <b>סדר המסיחים משתנה</b> בכל פעם — אי אפשר לשנן מיקום תשובה</li>
       <li>אין משוב במהלך הבוחן — התשובות וההסברים מופיעים <b>רק לאחר ההגשה</b></li>
       <li>ציון עובר: <b>60</b>${mode.secs?' · בסיום הזמן הבוחן מוגש אוטומטית':''}</li>
     </ul>
     <div class="nav"><button class="btn btn-pri" id="start">התחל בוחן ${mode.secs?'⏱️':'▶'}</button></div>
   </div>
-  <div class="stats" style="justify-content:center"><a class="link" href="index.html">← למאגר התרגול (${BANK.length} שאלות עם משוב מיידי)</a></div>`;
+  <div class="stats" style="justify-content:center"><a class="link" href="index.html">← למאגר התרגול (${POOL.length} שאלות עם משוב מיידי)</a></div>`;
   document.querySelectorAll('.mode').forEach(el=>el.onclick=()=>{mode=MODES.find(m=>m.id===el.dataset.id);render();});
   $('#start').onclick=start;
 }

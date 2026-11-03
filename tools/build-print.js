@@ -34,6 +34,10 @@ const esc = s => String(s)
 
 let n = 0;
 const key_of = t => 't' + (TOPICS.indexOf(t) + 1);
+/* מקור השאלה במאגר הרגיל, לסינון לפני הדפסה: s1 מרצה, s2 מיקוד, s3 כיתה של ספיר */
+const SOURCES = [['מרצה', 'שאלות המרצה'], ['שלי', 'שאלות נוספות לפי המיקוד'], ['כיתה של ספיר', 'כיתה של ספיר']];
+const src_of = q => 's' + (SOURCES.findIndex(([v]) => v === (q.src || 'מרצה')) + 1);
+const src_attr = (q, hard) => hard ? '' : ` data-src="${src_of(q)}"`;
 const section = (title, bank, hard) => {
   let h = `<h2 class="topic">${esc(title)}`;
   if (!hard && BLUEPRINT[title]) h += `<span class="bp">צפי במבחן: ${esc(BLUEPRINT[title])}</span>`;
@@ -44,7 +48,7 @@ const section = (title, bank, hard) => {
     n++;
     const opts = q.o.map((o, j) =>
       `<li class="${j === q.c ? 'right' : ''}"><span class="ltr">${L[j]}.</span> ${esc(o)}</li>`).join('');
-    return `<article class="q">
+    return `<article class="q"${src_attr(q, hard)}>
   <div class="qh"><span class="num">${n}</span><span class="qt">${esc(q.q)}</span></div>
   <ol class="opts">${opts}</ol>
   <div class="ans"><b>תשובה: ${L[q.c]}</b> — ${esc(q.o[q.c])}<div class="ex">${esc(q.e)}</div></div>
@@ -57,7 +61,7 @@ const section = (title, bank, hard) => {
 /* המפתח נאסף תוך כדי הבנייה, ולכן חייב לרוץ לפני שמרכיבים אותו */
 const KEY = [];
 const collect = (bank, title, hard) =>
-  bank.filter(q => q.t === title).forEach(q => KEY.push({ a: L[q.c], k: key_of(title), hard }));
+  bank.filter(q => q.t === title).forEach(q => KEY.push({ a: L[q.c], k: key_of(title), hard, s: hard ? '' : src_of(q) }));
 
 const body = [
   ...TOPICS.map(t => { const s = section(t, REG, false); collect(REG, t, false); return s; }),
@@ -67,7 +71,7 @@ const body = [
 
 /* מפתח תשובות דחוס — מה שהופך את מצב התרגול העצמי לשמיש */
 const keyCells = KEY.map((e, i) =>
-  `<span class="kc" data-topic="${e.k}"${e.hard ? ' data-hard="1"' : ''}><b>${i + 1}</b>${e.a}</span>`).join('');
+  `<span class="kc" data-topic="${e.k}"${e.hard ? ' data-hard="1"' : ''}${e.s ? ` data-src="${e.s}"` : ''}><b>${i + 1}</b>${e.a}</span>`).join('');
 const keySection = `<section class="sec"><h2 class="topic">מפתח תשובות<span class="bp" id="keycount">${KEY.length} שאלות</span></h2>
 <div class="key">${keyCells}</div></section>`;
 
@@ -119,7 +123,8 @@ body.hide-ans .only-self { display: block; }
 .key .kc b { display: inline-block; min-width: 30px; color: #555; font-weight: 400; }
 /* סינון לפני הדפסה — הכיתוב off-* נקבע ב-JS על ה-body */
 body.off-t1 [data-topic="t1"], body.off-t2 [data-topic="t2"], body.off-t3 [data-topic="t3"],
-body.off-t4 [data-topic="t4"], body.off-t5 [data-topic="t5"], body.off-hard [data-hard] { display: none !important; }
+body.off-t4 [data-topic="t4"], body.off-t5 [data-topic="t5"], body.off-hard [data-hard],
+body.off-s1 [data-src="s1"], body.off-s2 [data-src="s2"], body.off-s3 [data-src="s3"], .sec.empty { display: none !important; }
 .controls { border: 2px solid #000; padding: 12px; margin-bottom: 18px; font-size: 11pt; }
 .controls .picks { margin: 8px 0; display: flex; flex-wrap: wrap; gap: 4px 16px; }
 .controls label { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5pt; cursor: pointer; }
@@ -134,6 +139,10 @@ body.off-t4 [data-topic="t4"], body.off-t5 [data-topic="t5"], body.off-hard [dat
   <div class="picks" id="picks">
 ${TOPICS.map((t, i) => `    <label><input type="checkbox" data-k="t${i + 1}" checked> ${esc(t)}</label>`).join('')}
     <label><input type="checkbox" data-k="hard" checked> מאגר טריקי (שאלות קשות)</label>
+  </div>
+  <b>מקור השאלות:</b>
+  <div class="picks" id="srcpicks">
+${SOURCES.map(([v, label], i) => `    <label><input type="checkbox" data-k="s${i + 1}" checked> ${esc(label)} (${REG.filter(q => (q.src || 'מרצה') === v).length})</label>`).join('')}
   </div>
   <div class="sel" id="sel"></div>
   <div style="margin-top:10px">
@@ -170,9 +179,16 @@ ${keySection}
 </div>
 <script>
 (function(){
-  var boxes = [].slice.call(document.querySelectorAll('#picks input'));
+  var boxes = [].slice.call(document.querySelectorAll('#picks input, #srcpicks input'));
   function apply(){
     boxes.forEach(function(b){ document.body.classList.toggle('off-' + b.dataset.k, !b.checked); });
+    // נושא שכל שאלותיו סוננו לפי מקור לא ידפיס כותרת ריקה
+    var secs = [].slice.call(document.querySelectorAll('section.sec'));
+    secs.forEach(function(s){ s.classList.remove('empty'); });
+    secs.forEach(function(s){
+      var qs = s.querySelectorAll('article.q');
+      if (qs.length && ![].some.call(qs, function(a){ return a.offsetParent !== null; })) s.classList.add('empty');
+    });
     var vis = document.querySelectorAll('article.q');
     var shown = 0;
     [].forEach.call(vis, function(a){ if (a.offsetParent !== null) shown++; });

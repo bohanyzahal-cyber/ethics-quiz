@@ -170,7 +170,8 @@ let answers={}; // origIndex -> selected
 const $=s=>document.querySelector(s);
 
 function topics(){return ['all',...new Set(BANK.map(b=>b.t))];}
-function visible(){return order.filter(i=>(filter==='all'||BANK[i].t===filter)&&(srcFilter==='all'||srcOf(i)===srcFilter));}
+// שאלה של כיתת ספיר שכבר קיימת במאגר המרצה (dup) מוצגת רק בסינון של כיתת ספיר, כדי שלא תופיע פעמיים
+function visible(){return order.filter(i=>(filter==='all'||BANK[i].t===filter)&&(srcFilter==='all'?!BANK[i].dup:srcOf(i)===srcFilter));}
 
 function buildFilters(){
   const host=$('#filters'); host.innerHTML='';
@@ -187,8 +188,9 @@ function buildSrcFilters(){
   const host=$('#srcfilters'); host.innerHTML='';
   // הספירות מחושבות מהמאגר, כדי שלא יתיישנו בכל הוספה של שאלות
   const n=v=>BANK.filter((_,i)=>srcOf(i)===v).length;
-  $('#subcount').textContent=`ד"ר רון ברגר · קוד 865562901 · ${BANK.length} שאלות: ${n('מרצה')} רשמיות (מצגות 1–5) + ${n('שלי')} נוספות לפי קובץ המיקוד · חומר סגור`;
-  const opts=[['all',`כל המקורות (${BANK.length})`],['מרצה',`שאלות המרצה (${n('מרצה')})`],['שלי',`שאלות נוספות — מיקוד (${n('שלי')})`]];
+  const uniq=BANK.filter(b=>!b.dup).length;
+  $('#subcount').textContent=`ד"ר רון ברגר · קוד 865562901 · ${uniq} שאלות: ${n('מרצה')} רשמיות (מצגות 1–5) + ${n('שלי')} נוספות לפי קובץ המיקוד + ${n('כיתה של ספיר')-BANK.filter(x=>x.dup).length} מכיתה של ספיר (מתוך ${n('כיתה של ספיר')}; השאר זהות לשאלות המרצה) · חומר סגור`;
+  const opts=[['all',`כל המקורות (${uniq})`],['מרצה',`שאלות המרצה (${n('מרצה')})`],['שלי',`שאלות נוספות — מיקוד (${n('שלי')})`],['כיתה של ספיר',`כיתה של ספיר (${n('כיתה של ספיר')})`]];
   opts.forEach(([v,label])=>{
     const b=document.createElement('button');
     b.className='chip'+(srcFilter===v?' active':'');
